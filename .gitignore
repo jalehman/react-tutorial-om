@@ -3,4 +3,5 @@ pom.xml
 /lib/
 /classes/
 /targets/
+out/
 .lein-deps-sum
