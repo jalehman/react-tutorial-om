@@ -27,6 +27,17 @@
   (go (let [{body :body} (<! (http/get (:url opts)))]
         (om/update! app #(assoc % :comments (vec (map with-id body)))))))
 
+(defn- value-from-node
+  [owner field]
+  (let [n (om/get-node owner field)
+        v (-> n .-value clojure.string/trim)]
+    (when-not (empty? v)
+      [v n])))
+
+(defn- clear-nodes!
+  [& nodes]
+  (doall (map #(set! (.-value %) "") nodes)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Components
 
@@ -57,13 +68,33 @@
                               :key :id})
                   (range (count (:comments app))))))))
 
+(defn save-comment!
+  [comment app opts]
+  (do (om/update! app [:comments]
+                  (fn [comments] (conj comments (assoc comment :id (guid)))))
+      (go (let [res (<! (http/post (:url opts)
+                                   {:body comment}))]
+            (prn res)))))
+
+(defn handle-submit
+  [e app owner opts]
+  (let [[author author-node] (value-from-node owner "author")
+        [text text-node]     (value-from-node owner "text")]
+    (when (and author text)
+      (save-comment! {:author author :text text} app opts)
+      (clear-nodes! author-node text-node))
+    false))
+
 (defn comment-form
   [app opts]
-  (om/component
-   (dom/form #js {:className "commentForm"}
-             (dom/input #js {:type "text" :placeholder "Your Name"})
-             (dom/input #js {:type "text" :placeholder "Say something..."})
-             (dom/input #js {:type "submit" :value "Post"}))))
+  (reify
+    om/IRender
+    (render [_ owner]
+      (dom/form
+       #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts)}
+       (dom/input #js {:type "text" :placeholder "Your Name" :ref "author"})
+       (dom/input #js {:type "text" :placeholder "Say something..." :ref "text"})
+       (dom/input #js {:type "submit" :value "Post"})))))
 
 (defn comment-box [app opts]
   (reify
@@ -81,13 +112,16 @@
        #js {:className "commentBox"}
        (dom/h1 nil "Comments")
        (om/build comment-list app)
-       (om/build comment-form app)))))
+       (om/build comment-form app {:opts opts})))))
 
 (defn tutorial-app [app]
   (reify
-    om/IWillMount
-    (will-mount [_ owner]
-      )
+    ;; om/IWillMount
+    ;; (will-mount [_ owner]
+    ;;   (let [events (chan)]
+    ;;     (om/set-state! owner [:events] events)
+    ;;     (go (while true
+    ;;           (handle-event app (<! events))))))
     om/IRender
     (render [_ owner]
       (dom/div nil
