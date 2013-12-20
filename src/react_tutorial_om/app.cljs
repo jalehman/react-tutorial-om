@@ -33,10 +33,6 @@
 (def app-state
   (atom {:comments []}))
 
-(defn comment-form []
-  (om/component
-   (dom/div {:className "commentForm"} "Hello, world! I am a commentForm.")))
-
 (defn comment
   "Having some trouble getting the markdown to display properly. I've
    tried with:
@@ -48,18 +44,26 @@
   [{:keys [author text] :as c} opts]
   (om/component
    (let [raw-markup (md/mdToHtml text)]
-     (dom/div {:className "comment"}
-              (dom/h2 {:className "commentAuthor"} author)
+     (dom/div #js {:className "comment"}
+              (dom/h2 #js {:className "commentAuthor"} author)
               raw-markup))))
 
 (defn comment-list [app opts]
   (om/component
-   (dom/div {:className "commentList"}
+   (dom/div #js {:className "commentList"}
             (into-array
              (map #(om/build comment app
                              {:path [:comments %]
                               :key :id})
                   (range (count (:comments app))))))))
+
+(defn comment-form
+  [app opts]
+  (om/component
+   (dom/form #js {:className "commentForm"}
+             (dom/input #js {:type "text" :placeholder "Your Name"})
+             (dom/input #js {:type "text" :placeholder "Say something..."})
+             (dom/input #js {:type "submit" :value "Post"}))))
 
 (defn comment-box [app opts]
   (reify
@@ -73,15 +77,22 @@
             (<! (timeout (:poll-interval opts))))))
     om/IRender
     (render [_ owner]
-      (dom/div {:className "commentBox"}
-               (dom/h1 nil "Comments")
-               (om/build comment-list app)))))
+      (dom/div
+       #js {:className "commentBox"}
+       (dom/h1 nil "Comments")
+       (om/build comment-list app)
+       (om/build comment-form app)))))
 
 (defn tutorial-app [app]
-  (om/component
-   (dom/div nil
-            (om/build comment-box app
-                      {:opts {:poll-interval 2000
-                              :url "comments.json"}}))))
+  (reify
+    om/IWillMount
+    (will-mount [_ owner]
+      )
+    om/IRender
+    (render [_ owner]
+      (dom/div nil
+               (om/build comment-box app
+                         {:opts {:poll-interval 2000
+                                 :url "comments.json"}})))))
 
 (om/root app-state tutorial-app (.getElementById js/document "content"))
