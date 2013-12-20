@@ -4,4 +4,5 @@ pom.xml
 /classes/
 /targets/
 out/
+app.js
 .lein-deps-sum
