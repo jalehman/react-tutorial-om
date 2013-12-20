@@ -11,7 +11,7 @@ I worked through the React tutorial yesterday in JS(X), and did it today in Om. 
 
 I've tried to stay really close in concept to the original tutorial, but made the following substitutions to be as idiomatic as possible:
 
-+ jQuery (ajax) -> [clj-http](https://github.com/r0man/cljs-http)
++ jQuery (ajax) -> [cljs-http](https://github.com/r0man/cljs-http)
 + Showdown (markdown) -> [markdown-clj](https://github.com/yogthos/markdown-clj)
 
 The [original react tutorial repo](https://github.com/petehunt/react-tutorial) includes a nodejs server; therefore, this one has a Clojure one. run `lein ring server` to fire it up.
