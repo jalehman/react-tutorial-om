@@ -24,8 +24,9 @@
 (defn- fetch-comments
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [{body :body} (<! (http/get (:url opts)))]
-        (om/update! app #(assoc % :comments (vec (map with-id body)))))))
+  (go (let [{{cs :comments} :body} (<! (http/get (:url opts)))]
+        (om/update!
+         app #(assoc % :comments (vec (map with-id cs)))))))
 
 (defn- value-from-node
   [owner field]
@@ -72,9 +73,8 @@
   [comment app opts]
   (do (om/update! app [:comments]
                   (fn [comments] (conj comments (assoc comment :id (guid)))))
-      (go (let [res (<! (http/post (:url opts)
-                                   {:body comment}))]
-            (prn res)))))
+      (go (let [res (<! (http/post (:url opts) {:json-params comment}))]
+            (prn (:message res))))))
 
 (defn handle-submit
   [e app owner opts]
@@ -116,17 +116,11 @@
 
 (defn tutorial-app [app]
   (reify
-    ;; om/IWillMount
-    ;; (will-mount [_ owner]
-    ;;   (let [events (chan)]
-    ;;     (om/set-state! owner [:events] events)
-    ;;     (go (while true
-    ;;           (handle-event app (<! events))))))
     om/IRender
     (render [_ owner]
       (dom/div nil
                (om/build comment-box app
                          {:opts {:poll-interval 2000
-                                 :url "comments.json"}})))))
+                                 :url "/comments"}})))))
 
 (om/root app-state tutorial-app (.getElementById js/document "content"))
