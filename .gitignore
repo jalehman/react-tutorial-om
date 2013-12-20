@@ -5,6 +5,6 @@ pom.xml
 /targets/
 /out/
 /target/
-*.js
+/app.js
 .nrepl-port
 .lein-deps-sum
