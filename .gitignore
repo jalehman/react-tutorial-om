@@ -3,8 +3,8 @@ pom.xml
 /lib/
 /classes/
 /targets/
+/resources/public/js/
 /out/
 /target/
-app.js
 .nrepl-port
 .lein-deps-sum
