@@ -12,11 +12,11 @@
 
   :plugins [[lein-cljsbuild "1.0.0"]]
 
-  :source-paths ["src"]
+  :source-paths ["src/clj"]
 
   :cljsbuild {
               :builds [{:id "dev"
-                        :source-paths ["src"]
+                        :source-paths ["src/cljs"]
                         :compiler {
                                    :output-to "app.js"
                                    :output-dir "out"
@@ -24,7 +24,7 @@
                                    :source-map true
                                    :externs ["om/externs/react.js"]}}
                        {:id "release"
-                        :source-paths ["src"]
+                        :source-paths ["src/cljs"]
                         :compiler {
                                    :output-to "app.js"
                                    :source-map "app.js.map"
