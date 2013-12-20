@@ -3,6 +3,7 @@ pom.xml
 /lib/
 /classes/
 /targets/
-out/
-app.js
+/out/
+/target/
+*.js
 .lein-deps-sum
