@@ -46,19 +46,13 @@
   (atom {:comments []}))
 
 (defn comment
-  "Having some trouble getting the markdown to display properly. I've
-   tried with:
-
-    (dom/span {:dangerouslySetInnerHTML (js-obj {:__html raw-markup})})
-
-   and other variants...but haven't gotten anywhere."
-
   [{:keys [author text] :as c} opts]
   (om/component
-   (let [raw-markup (md/mdToHtml text)]
+   (let [raw-markup (md/mdToHtml text)
+         color "red"]
      (dom/div #js {:className "comment"}
               (dom/h2 #js {:className "commentAuthor"} author)
-              raw-markup))))
+              (dom/span #js {:dangerouslySetInnerHTML #js {:__html raw-markup}} )))))
 
 (defn comment-list [app opts]
   (om/component
