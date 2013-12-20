@@ -24,3 +24,7 @@ For getting the latest version of CLJS and Om, follow swannodette's instructions
 
 + **Client:** `lein cljsbuild once dev`
 + **Server:** `lein ring server`
+
+## Todo
+
+I can't for the life of me get the markdown to actually render. Attempts at getting ` <span dangerouslySetInnerHTML={{__html: rawMarkup}} />` to work in Om have failed thus far -- any ideas on how to go about this would be much appreciated.
