@@ -1,7 +1,7 @@
 react-tutorial-om
 =================
 
-The [React tutorial](http://facebook.github.io/react/docs/tutorial.html) rewritten in [Om](https://github.com/swannodette/om)
+The [React tutorial](http://facebook.github.io/react/docs/tutorial.html) rewritten in [Om](https://github.com/swannodette/om). [Here's](https://github.com/jalehman/omtut-starter) a version of the tutorial that provides a guided, step-by-step tutorial.
 
 ## Intro
 
