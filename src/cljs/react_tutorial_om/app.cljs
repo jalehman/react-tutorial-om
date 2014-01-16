@@ -24,15 +24,13 @@
 (defn- fetch-comments
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [{{cs :comments} :body} (<! (http/get (:url opts)))
-            n (count cs)]
+  (go (let [{{cs :comments} :body} (<! (http/get (:url opts)))]
         (om/update!
-         app #(assoc % :comments (vec (map with-id cs) ))))))
+         app #(assoc % :comments (vec (map with-id cs)))))))
 
 (defn- value-from-node
   [owner field]
   (let [n (om/get-node owner field)
-        ;; _ (.log js/console n)
         v (-> n .-value clojure.string/trim)]
     (when-not (empty? v)
       [v n])))
