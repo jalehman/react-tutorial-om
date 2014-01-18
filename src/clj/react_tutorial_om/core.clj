@@ -19,7 +19,7 @@
    :body (json/generate-string data)})
 
 (defn load-json-file [file]
-  (-> (slurp db-file)
+  (-> (slurp file)
       (json/parse-string true)
       vec))
 
@@ -48,7 +48,8 @@
   (let [data (map translate-keys matches)]
     (map-indexed
      (partial rank/format-for-printing data)
-     (do (prn (rank/top-glicko-teams 15 data))
+     (rank/top-teams 30 data)
+     #_(do (prn (rank/top-glicko-teams 15 data))
          (rank/top-glicko-teams 30 data {})))))
 
 (defroutes app-routes
@@ -74,7 +75,7 @@
   (-> #'app-routes
       (handler/api)))
 
-(init)
+;; (init)
 ;; TODO:
 (comment
   "

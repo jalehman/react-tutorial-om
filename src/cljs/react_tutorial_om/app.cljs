@@ -64,24 +64,17 @@
 
 (defn comment
   [{:keys [winner winner-score loser loser-score] :as c} owner opts]
-  ;; (logm c)
-  ;; (prn c)
   (om/component
-   (let [;;raw-markup (md/mdToHtml text)
-         color "red"]
-     (dom/div #js {:className "comment"}
-              (dom/span #js {:className "commentAuthor"} winner)
-              (dom/span #js {:className "divider"} " - ")
-              (dom/span #js {:className "score"} winner-score)
-              (dom/span #js {:className "divider"} "  ---  ")
-              (dom/span #js {:className "score"} loser-score)
-              (dom/span #js {:className "divider"} " - ")
-              (dom/span #js {:className "commentAuthor"} loser)))))
+   (make-table-cols dom/td #js {:className "comment"}
+                    [winner winner-score loser-score loser])))
 
 (defn comment-list [{:keys [comments]}]
   (om/component
-   (dom/div #js {:className "commentList"}
-            (om/build-all comment comments))))
+   (dom/table #js {:className "commentList"}
+              (dom/tbody
+               nil
+               (dom/thead nil (make-table-cols dom/th nil ["winner" "" "" "loser"]))
+               (om/build-all comment comments)))))
 
 (defn save-comment!
   [comment app opts]
