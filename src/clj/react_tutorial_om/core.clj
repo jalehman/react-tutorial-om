@@ -78,9 +78,6 @@
 ;; TODO:
 (comment
   "
-* calc ranks
-* ranks endpoint
-* ranks component
 * date
 * css
 * use a db

@@ -1,7 +1,7 @@
 (ns react-tutorial-om.app
   (:require-macros [cljs.core.async.macros :refer [go alt!]]
                    ;; #_[secretary.macros :refer [defroute]]
-                   [react-tutorial-om.utils :refer [logm]]
+                   [react-tutorial-om.utils :refer [logm make-table-cols]]
                    )
   (:require [goog.events :as events]
             [cljs.core.async :refer [put! <! >! chan timeout]]
@@ -39,7 +39,7 @@
             ;; rankmap (map (fn [[k v]] {(keyword k) v}) ranks)
 
             ]
-        (prn "got rankings" ranks)
+        ;; (prn "got rankings" ranks)
         (when ranks
           (om/transact!
            app #(assoc % :rankings (vec (map with-id ranks))))))))
@@ -156,17 +156,18 @@ else return [false false]
   ;; (logm name rank)
   ;; (prn c)
   (om/component
-   (dom/div #js {:className "ranking"}
-            (str team ", " ranking ", rd: " rd ", wins: " wins
-                 ", losses: " loses ", played: " (+ wins loses))
-            ;; (dom/span #js {:className "commentAuthor"} winner)
-            )))
+   (make-table-cols dom/td nil
+                    [team ranking rd wins loses (+ wins loses)])))
 
 (defn ranking-list [{:keys [rankings]}]
   (om/component
-   (dom/div #js {:className "rankingList"}
-            ;; (prn "rankings" rankings)
-            (om/build-all ranking rankings))))
+   (dom/table #js {:className "rankingTable"}
+              (dom/tbody
+               nil
+               (dom/thead nil
+                          (make-table-cols dom/th nil
+                                           ["team" "ranking" "rd" "wins" "losses" "played"]))
+               (om/build-all ranking rankings)))))
 
 
 (defn rankings-box [app owner opts]

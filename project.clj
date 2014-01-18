@@ -23,6 +23,8 @@
   :ring {:handler react-tutorial-om.core/app
          :init    react-tutorial-om.core/init}
 
+  :main react-tutorial-om.core
+  :aot [react-tutorial-om.core]
   :source-paths ["src/clj"]
 
   :cljsbuild {

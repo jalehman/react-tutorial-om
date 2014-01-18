@@ -8,6 +8,13 @@
   ([s & rest]
      `(.log js/console (print-str (cons ~s ~rest)))))
 
+(defmacro make-table-cols
+  "Build a table row with collumns "
+  [el attrs cols]
+  {:pre [(contains? #{'dom/td 'dom/th} el)]}
+  `(dom/tr attrs
+           ~@(for [col cols]
+               `(~el nil ~col))))
 (comment
   (.log js/console (str (cons ~s ~rest)))
   (fn [& args]
