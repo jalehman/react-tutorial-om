@@ -16,7 +16,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Util
-
+ 
 (defn- with-id
   [m]
   (assoc m :id (guid)))
@@ -42,78 +42,91 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Components
 
+(def INITIAL [])
+
 (def app-state
-  (atom {:comments []}))
+  (atom {:comments INITIAL}))
 
 (defn comment
-  [{:keys [author text] :as c} opts]
+  [cursor owner opts]
+  (.log js/console (str "comment cursor = " cursor))
   (om/component
-   (let [raw-markup (md/mdToHtml text)
-         color "red"]
-     (dom/div #js {:className "comment"}
-              (dom/h2 #js {:className "commentAuthor"} author)
-              (dom/span #js {:dangerouslySetInnerHTML #js {:__html raw-markup}} )))))
+    (let [text (:text cursor)
+          author (:author cursor)
+          raw-markup (md/mdToHtml (or text "blank comment!"))
+          color "red"]
+      (dom/div #js {:className "comment"}
+               (dom/h2 #js {:className "commentAuthor"} author)
+               (dom/span #js {:dangerouslySetInnerHTML #js {:__html raw-markup}} )))))
 
-(defn comment-list [app opts]
+(defn comment-list
+  [{:keys [comments] :as cursor} owner opts]
+  ;; (.log js/console (str "comment-list cursor = " (into {} cursor)))
+  ;; (.log js/console (str "owner = " (into {} owner)))
   (om/component
    (dom/div #js {:className "commentList"}
             (into-array
-             (map #(om/build comment app
-                             {:path [:comments %]
-                              :key :id})
-                  (range (count (:comments app))))))))
+             (om/build-all comment comments
+                                 {:key :id
+                                  :fn (fn [c]
+                                        ;; (.log js/console c) 
+                                        c)
+                                  :opts opts})))))
 
 (defn save-comment!
-  [comment app opts]
-  (do (om/update! app [:comments]
-                  (fn [comments] (conj comments (assoc comment :id (guid)))))
+  [comment cursor opts]
+  (do (om/update! cursor 
+                  (fn [comments] 
+                    (conj comments (assoc comment :id (guid)))))
       (go (let [res (<! (http/post (:url opts) {:json-params comment}))]
             (prn (:message res))))))
 
 (defn handle-submit
-  [e app owner opts]
+  [e cursor owner opts]
   (let [[author author-node] (value-from-node owner "author")
         [text text-node]     (value-from-node owner "text")]
+    (.log js/console cursor)
     (when (and author text)
-      (save-comment! {:author author :text text} app opts)
+      (save-comment! {:author author :text text} cursor opts)
       (clear-nodes! author-node text-node))
     false))
 
 (defn comment-form
-  [app opts]
+  [app owner opts]
   (reify
     om/IRender
-    (render [_ owner]
+    (render [this]
       (dom/form
        #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts)}
        (dom/input #js {:type "text" :placeholder "Your Name" :ref "author"})
        (dom/input #js {:type "text" :placeholder "Say something..." :ref "text"})
        (dom/input #js {:type "submit" :value "Post"})))))
-
-(defn comment-box [app opts]
+ 
+(defn comment-box 
+  [cursor owner opts]
   (reify
     om/IInitState
-    (init-state [_ owner]
-      (om/update! app #(assoc % :comments [])))
+    (init-state [this]
+      (om/update! cursor #(assoc % :comments INITIAL)))
     om/IWillMount
-    (will-mount [_ owner]
+    (will-mount [this]
       (go (while true
-            (fetch-comments app opts)
+            (fetch-comments cursor opts)
             (<! (timeout (:poll-interval opts))))))
     om/IRender
-    (render [_ owner]
+    (render [this]
       (dom/div
        #js {:className "commentBox"}
        (dom/h1 nil "Comments")
-       (om/build comment-list app)
-       (om/build comment-form app {:opts opts})))))
+       (om/build comment-list cursor)
+       (om/build comment-form cursor {:opts opts})))))
 
-(defn tutorial-app [app]
+(defn tutorial-app [cursor owner]
   (reify
     om/IRender
-    (render [_ owner]
+    (render [this]
       (dom/div nil
-               (om/build comment-box app
+               (om/build comment-box cursor
                          {:opts {:poll-interval 2000
                                  :url "/comments"}})))))
 

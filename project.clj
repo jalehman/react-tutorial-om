@@ -3,18 +3,18 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/tools.reader "0.8.2"]
+                 [org.clojure/tools.reader "0.8.3"]
                  ;; CLJ
                  [ring/ring-core "1.2.0"]
                  [compojure "1.1.6"]
-                 [cheshire "5.2.0"]
+                 [cheshire "5.3.1"]
                  ;; CLJS
-                 [org.clojure/clojurescript "0.0-2127"]
+                 [org.clojure/clojurescript "0.0-2138"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [secretary "0.4.0"]
-                 [markdown-clj "0.9.36"]
+                 [markdown-clj "0.9.40"]
                  [cljs-http "0.1.2"]
-                 [om "0.1.0-SNAPSHOT"]]
+                 [om "0.1.7"]]
 
   :plugins [[lein-cljsbuild "1.0.0"]
             [lein-ring "0.8.7"]]
