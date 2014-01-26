@@ -32,7 +32,8 @@
   (let [comment (-> body io/reader slurp (json/parse-string true)
                     ;; TODO: coerce data earlier
                     (update-in [:winner] clojure.string/lower-case)
-                    (update-in [:loser] clojure.string/lower-case))]
+                    (update-in [:loser] clojure.string/lower-case)
+                    (update-in [:date] (fn [_] (java.util.Date.))))]
     (swap! results conj comment)
     (spit db-file (json/generate-string @results)) ;; put in channel?
     (json-response

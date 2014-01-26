@@ -69,7 +69,9 @@
               (dom/tbody
                nil
                (dom/thead nil (make-table-cols dom/th nil ["winner" "" "" "loser"]))
-               (om/build-all comment comments)))))
+               (dom/tr nil ;; workaround
+                       (make-table-cols dom/td nil ["" "" "" ""]))
+               (om/build-all comment (reverse comments))))))
 
 (defn save-comment!
   [comment app opts]
@@ -113,10 +115,10 @@ else return [false false]
     (render [_]
       (dom/form
        #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts)}
-       (dom/input #js {:type "text" :placeholder "Winner's Fucking Name" :ref "winner"})
-       (dom/input #js {:type "text" :placeholder "Score" :ref "winner-score"})
-       (dom/input #js {:type "text" :placeholder "Loser's Fucking Name" :ref "loser"})
-       (dom/input #js {:type "text" :placeholder "Score" :ref "loser-score"})
+       (dom/input #js {:type "text" :placeholder "Winner" :ref "winner"})
+       (dom/input #js {:type "number"  :placeholder "Score" :ref "winner-score"})
+       (dom/input #js {:type "text" :placeholder "Loser" :ref "loser"})
+       (dom/input #js {:type "number" :placeholder "Score" :ref "loser-score"})
        (dom/input #js {:type "submit" :value "Post"})))))
 
 (defn comment-box [app owner opts]
@@ -133,9 +135,10 @@ else return [false false]
     (render [_]
       (dom/div
        #js {:className "commentBox"}
-       (dom/h1 nil "Results")
+       (dom/h3 nil "Results (most recent first)")
+       (om/build comment-form app {:opts opts})
        (om/build comment-list app)
-       (om/build comment-form app {:opts opts})))))
+       ))))
 
 
 (defn ranking
