@@ -34,12 +34,7 @@
 (defn- fetch-rankings
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [;;{{cs :rankings} :body :as b}
-            {{ranks :rankings} :body} (<! (http/get (:url opts)))
-            ;; rankmap (map (fn [[k v]] {(keyword k) v}) ranks)
-
-            ]
-        ;; (prn "got rankings" ranks)
+  (go (let [{{ranks :rankings} :body status :status} (<! (http/get (:url opts)))]
         (when ranks
           (om/transact!
            app #(assoc % :rankings (vec (map with-id ranks))))))))
@@ -144,13 +139,10 @@ else return [false false]
 
 
 (defn ranking
-  [{:keys [team ranking wins loses rd]} owner opts]
-  ;; (prn "ranking" data)
-  ;; (logm name rank)
-  ;; (prn c)
+  [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
   (om/component
    (make-table-cols dom/td nil
-                    [team ranking rd wins loses (+ wins loses)])))
+                    [team ranking rd wins loses (+ wins loses) suggest])))
 
 (defn ranking-list [{:keys [rankings]}]
   (om/component
@@ -159,8 +151,12 @@ else return [false false]
                nil
                (dom/thead nil
                           (make-table-cols dom/th nil
-                                           ["team" "ranking" "rd" "wins" "losses" "played"]))
-               (om/build-all ranking rankings)))))
+                                           ["team" "ranking" "rd" "wins" "losses" "played" "suggested opponent"]))
+               (dom/tr #js {:style #js {:display "none"}} ;; workaround
+                       (make-table-cols dom/td nil
+                                        ["" "" "" " " " " " " ""]))
+               (om/build-all ranking rankings)
+               ))))
 
 
 (defn rankings-box [app owner opts]

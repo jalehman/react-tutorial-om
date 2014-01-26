@@ -52,6 +52,57 @@
      #_(do (prn (rank/top-glicko-teams 15 data))
          (rank/top-glicko-teams 30 data {})))))
 
+(defn attach-player-matches [results rankings]
+  (for [rank rankings]
+    (assoc-in rank [:matches] (rank/show-matches (:team rank) results))))
+
+(defn normalise-indexes
+  "Move out of bounds indexes into the next free position
+
+  10 2 [-2 -1 1 2] => (4 3 1 2)
+  10 2 [7 8 10 11] => (7 8 5 6)"
+  [total offset idxs]
+  (for [idx idxs]
+    (cond
+     (neg? idx) (- offset idx)
+     (>= (inc idx) total) (- (dec idx) offset offset)
+     :else idx)))
+
+(defn suggest-opponent
+  "Given a user match history and map of user ranks suggest the next
+  oppenent a user should face. Ranks is a vector of people
+TODO: tidy up"
+  [{:keys [rank matches]} ranks]
+  (try
+    (let [offset 2
+          idx-rank (dec rank)
+          opps1 (range rank (+ rank offset))
+          opps2 (range (- idx-rank offset) idx-rank)
+          allopps  (->> (concat opps1 opps2)
+                        (normalise-indexes (count ranks) offset))
+          oppnames-set (set (map ranks allopps))
+          matchfreqs (frequencies (filter #(contains? oppnames-set %)
+                                          (map :opposition matches)))
+          near-totals (reduce (fn [acc [k v]] (assoc acc k v))
+                              (zipmap oppnames-set (repeat 0)) ;; Start at 0
+                              matchfreqs)
+          sorted-totals (sort-by second near-totals)
+          ]
+       (ffirst sorted-totals))
+    (catch java.lang.IndexOutOfBoundsException e
+      (prn "Index error: " rank (str e))
+      (str e))))
+
+(defn- vectorise-names [rankings]
+  (vec (map :team rankings)))
+
+(defn attach-suggested-opponents
+  [rankings]
+  (let [vec-ranks (vectorise-names rankings)]
+    (for [rank rankings]
+      (assoc-in rank [:suggest] (suggest-opponent rank vec-ranks)))))
+
+
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
   (GET "/init" [] (init) "inited")
@@ -61,10 +112,13 @@
   (POST "/comments" req (save-comment! req))
 
   (GET "/rankings" []
-       (json-response
-        {:message "Some rankinsg"
-         :rankings  (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 2))
-                            (calc-ranking-data @results))}))
+       (let [-results (map translate-keys @results)]
+         (json-response
+          {:message "Some rankings"
+           :rankings  (->> (calc-ranking-data -results)
+                           (attach-player-matches -results)
+                           attach-suggested-opponents
+                           (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 2))))})))
 
 
 
@@ -76,10 +130,14 @@
       (handler/api)))
 
 ;; (init)
-;; TODO:
 (comment
   "
-* date
-* css
-* use a db
+ TODO:
+* use a db => datamic?
+* sort by col
+* click on player
+* proper glicko
+* generic sortable table component
+* unique wins, etc
+* om 0.3
  ")
