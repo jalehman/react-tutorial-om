@@ -178,7 +178,7 @@ else return [false false]
     (render [_]
       (dom/div
        #js {:className "rankingsBox"}
-       (dom/h1 nil "Rankings (played more than 2 games)")
+       (dom/h3 nil "Rankings (played more than 2 games)")
        (om/build ranking-list app)
        ))))
 
@@ -187,20 +187,17 @@ else return [false false]
   (reify
     om/IRender
     (render [_]
-      (dom/div nil
-               (om/build rankings-box app
-                         {:opts {:poll-interval 2000
-                                 :url "/rankings"}})
-               (om/build comment-box app
-                         {:opts {:poll-interval 2000
-                                 :url "/comments"}})
-
-               ))))
+      (dom/div #js {:className "row"}
+               (dom/div #js {:className "large-3 columns"
+                             :dangerouslySetInnerHTML #js {:__html "&nbsp;"}})
+               (dom/div #js {:className "large-6 columns"}
+                        (om/build rankings-box app
+                                  {:opts {:poll-interval 2000
+                                          :url "/rankings"}})
+                        (om/build comment-box app
+                                  {:opts {:poll-interval 2000
+                                          :url "/comments"}}))
+               (dom/div #js {:className "large-3 columns"} ""))
+      )))
 
 (om/root app-state tutorial-app (.getElementById js/document "content"))
-
-(comment
-
-
-
-  )
