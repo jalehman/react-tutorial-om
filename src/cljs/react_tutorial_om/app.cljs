@@ -145,7 +145,7 @@ else return [false false]
   [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
   (om/component
    (make-table-cols dom/td nil
-                    [team ranking rd wins loses (+ wins loses) suggest])))
+                    [team ranking wins loses (.toFixed (/ wins loses) 2) suggest])))
 
 (defn ranking-list [{:keys [rankings]}]
   (om/component
@@ -154,10 +154,10 @@ else return [false false]
                nil
                (dom/thead nil
                           (make-table-cols dom/th nil
-                                           ["team" "ranking" "rd" "wins" "losses" "played" "suggested opponent"]))
+                                           ["team" "ranking" "wins" "losses" "w/l" "suggested opponent"]))
                (dom/tr #js {:style #js {:display "none"}} ;; workaround
                        (make-table-cols dom/td nil
-                                        ["" "" "" " " " " " " ""]))
+                                        ["" "" "" "" "" ""]))
                (om/build-all ranking rankings)
                ))))
 
