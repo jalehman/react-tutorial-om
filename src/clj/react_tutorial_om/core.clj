@@ -145,12 +145,12 @@
 (comment
   "
  TODO:
-* remove total col (admin only view)
 * use a db => datomic?
 * sort by col
 * click on player
 * proper glicko
 * generic sortable table component
-* unique wins, etc
+* unique wins, etc - some kind of distribution concept, who is most rounded
 * om 0.3
+* connection status
  ")
