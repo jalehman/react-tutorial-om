@@ -71,8 +71,9 @@
 
 (defn suggest-opponent
   "Given a user match history and map of user ranks suggest the next
-  oppenent a user should face. Ranks is a vector of people
-TODO: tidy up"
+  oppenent a user should face. Ranks is a vector of people.
+
+  TODO: tidy up"
   [{:keys [rank matches]} ranks]
   (try
     (let [offset 2
@@ -103,6 +104,15 @@ TODO: tidy up"
     (for [rank rankings]
       (assoc-in rank [:suggest] (suggest-opponent rank vec-ranks)))))
 
+(defn attach-uniques [rankings]
+  (for [rank rankings]
+    (->> rank
+         :matches
+         (filter (fn [x] (> (:for x) (:against x))))
+         (map :opposition)
+         (into #{})
+         count
+         (assoc-in rank [:u-wins]))))
 
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
@@ -119,6 +129,7 @@ TODO: tidy up"
            :rankings  (->> (calc-ranking-data -results)
                            (attach-player-matches -results)
                            attach-suggested-opponents
+                           attach-uniques
                            (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 2))))})))
 
 
@@ -134,7 +145,8 @@ TODO: tidy up"
 (comment
   "
  TODO:
-* use a db => datamic?
+* remove total col (admin only view)
+* use a db => datomic?
 * sort by col
 * click on player
 * proper glicko
