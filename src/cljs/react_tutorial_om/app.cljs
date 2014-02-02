@@ -35,9 +35,13 @@
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
   (go (let [{{ranks :rankings} :body status :status} (<! (http/get (:url opts)))]
-        (when ranks
+        (if ranks
           (om/transact!
-           app #(assoc % :rankings (vec (map with-id ranks))))))))
+           app #(-> %
+                    (assoc :rankings (vec (map with-id ranks)))
+                    (assoc :conn? true)))
+          (om/transact!
+           app #(assoc % :conn? false))))))
 
 
 (defn- value-from-node
@@ -55,7 +59,12 @@
 ;; Components
 
 (def app-state
-  (atom {:comments [] :rankings []}))
+  (atom {:comments [] :rankings [] :conn? false}))
+
+(defn display [show]
+  (if show
+    #js {}
+    #js {:display "none"}))
 
 (defn comment
   [{:keys [winner winner-score loser loser-score] :as c} owner opts]
@@ -181,6 +190,13 @@ else return [false false]
        (om/build ranking-list app)
        ))))
 
+(defn status-box [conn? owner]
+  (reify
+    om/IRender
+    (render [this]
+      (dom/div #js {:className "alert-box warning radius"
+                    :style (display (not conn?))}
+               "Connection problem!"))))
 
 (defn tutorial-app [app owner]
   (reify
@@ -190,6 +206,7 @@ else return [false false]
                (dom/div #js {:className "large-3 columns"
                              :dangerouslySetInnerHTML #js {:__html "&nbsp;"}})
                (dom/div #js {:className "large-6 columns"}
+                        (om/build status-box (:conn? app))
                         (om/build rankings-box app
                                   {:opts {:poll-interval 2000
                                           :url "/rankings"}})
