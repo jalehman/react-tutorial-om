@@ -151,6 +151,5 @@
 * proper glicko
 * generic sortable table component
 * unique wins, etc - some kind of distribution concept, who is most rounded
-* om 0.3
 * connection status
  ")
