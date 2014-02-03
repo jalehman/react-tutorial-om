@@ -103,18 +103,18 @@ else return [false false]
       [false false])))
 
 (defn handle-submit
-  [e app owner opts]
-  (let [[winner winner-node] (value-from-node owner "winner")
-        [winner-score winner-score-node] (value-from-node owner "winner-score")
-        [loser loser-node] (value-from-node owner "loser")
-        [loser-score loser-score-node] (value-from-node owner "loser-score")
-        [winner-score-int loser-score-int] (validate-scores winner-score loser-score)
-        ]
+  [e app owner opts {:keys [winner winner-score loser loser-score]}]
+  (let [winner (clojure.string/trim winner)
+        winner-score (clojure.string/trim winner-score)
+        loser (clojure.string/trim loser)
+        loser-score (clojure.string/trim loser-score)
+        [winner-score-int loser-score-int] (validate-scores winner-score loser-score)]
     (when (and winner winner-score-int loser loser-score-int)
       (save-comment! {:winner winner :winner-score winner-score-int
                       :loser loser :loser-score loser-score-int}
                      app opts)
-      (clear-nodes! winner-node winner-score-node loser-node loser-score-node))
+      (doseq [key [:winner :winner-score :loser :loser-score]]
+        (om/set-state! owner key "")))
     false))
 
 (defn handle-change [e owner key]
@@ -130,7 +130,7 @@ else return [false false]
     om/IRenderState
     (render-state [this state]
       (dom/form
-       #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts)}
+       #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts state)}
        (dom/input #js {:type "text" :placeholder "Winner" :ref "winner"
                        :value (:winner state)
                        :onChange #(handle-change % owner :winner)})
