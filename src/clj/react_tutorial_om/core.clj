@@ -46,12 +46,11 @@
    :away_score loser-score})
 
 (defn calc-ranking-data [matches]
-  (let [data (map translate-keys matches)]
-    (map-indexed
-     (partial rank/format-for-printing data)
-     (rank/top-teams 30 data)
-     #_(do (prn (rank/top-glicko-teams 15 data))
-         (rank/top-glicko-teams 30 data {})))))
+  (map-indexed
+   (partial rank/format-for-printing matches)
+   (rank/top-teams 30 matches)
+   #_(do (prn (rank/top-glicko-teams 30 matches))
+         (rank/top-glicko-teams 30 matches {}))))
 
 (defn attach-player-matches [results rankings]
   (for [rank rankings]
