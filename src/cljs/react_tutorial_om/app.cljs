@@ -117,17 +117,32 @@ else return [false false]
       (clear-nodes! winner-node winner-score-node loser-node loser-score-node))
     false))
 
+(defn handle-change [e owner key]
+  (om/set-state! owner key (.. e -target -value)))
+
 (defn comment-form
   [app owner opts]
   (reify
-    om/IRender
-    (render [_]
+    om/IInitState
+    (init-state [_]
+      {:winner "" :winner-score ""
+       :loser "" :loser-score ""})
+    om/IRenderState
+    (render-state [this state]
       (dom/form
        #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts)}
-       (dom/input #js {:type "text" :placeholder "Winner" :ref "winner"})
-       (dom/input #js {:type "number"  :placeholder "Score" :ref "winner-score"})
-       (dom/input #js {:type "text" :placeholder "Loser" :ref "loser"})
-       (dom/input #js {:type "number" :placeholder "Score" :ref "loser-score"})
+       (dom/input #js {:type "text" :placeholder "Winner" :ref "winner"
+                       :value (:winner state)
+                       :onChange #(handle-change % owner :winner)})
+       (dom/input #js {:type "number"  :placeholder "Score" :ref "winner-score"
+                       :value (:winner-score state)
+                       :onChange #(handle-change % owner :winner-score)})
+       (dom/input #js {:type "text" :placeholder "Loser" :ref "loser"
+                       :value (:loser state)
+                       :onChange #(handle-change % owner :loser)})
+       (dom/input #js {:type "number" :placeholder "Score" :ref "loser-score"
+                       :value (:loser-score state)
+                       :onChange #(handle-change % owner :loser-score)})
        (dom/input #js {:type "submit" :value "Post"})))))
 
 (defn comment-box [app owner opts]
