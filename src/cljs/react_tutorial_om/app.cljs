@@ -226,7 +226,7 @@ else return [false false]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:className "row"}
+      (dom/div #js {:className "row results-row"}
                (dom/div #js {:className "large-3 columns"
                              :dangerouslySetInnerHTML #js {:__html "&nbsp;"}})
                (dom/div #js {:className "large-6 columns"}
