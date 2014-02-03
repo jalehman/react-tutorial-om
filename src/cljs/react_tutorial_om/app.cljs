@@ -59,7 +59,7 @@
 ;; Components
 
 (def app-state
-  (atom {:comments [] :rankings [] :conn? false}))
+  (atom {:comments [] :rankings [] :conn? true}))
 
 (defn display [show]
   (if show
