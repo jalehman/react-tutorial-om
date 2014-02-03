@@ -149,12 +149,21 @@ else return [false false]
        (om/build comment-list app)
        ))))
 
+(defn last-10-games [results owner]
+  (om/component
+   (apply dom/ul #js {:className "last-10-games"}
+          (map #(dom/li #js {:className (if % "win" "loss")}
+                        (dom/span nil (if % "Win" "Loss")))
+               (->> results
+                    (take-last 10)
+                    (map #(> (:for %) (:against %))))))))
 
 (defn ranking
   [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
   (om/component
    (make-table-cols dom/td nil
-                    [team ranking wins loses (.toFixed (/ wins loses) 2) suggest])))
+                    [team ranking wins loses (.toFixed (/ wins loses) 2) suggest
+                     (om/build last-10-games (:matches fields))])))
 
 (defn ranking-list [{:keys [rankings]}]
   (om/component
@@ -163,10 +172,10 @@ else return [false false]
                nil
                (dom/thead nil
                           (make-table-cols dom/th nil
-                                           ["team" "ranking" "wins" "losses" "w/l" "suggested opponent"]))
+                                           ["team" "ranking" "wins" "losses" "w/l" "suggested opponent" "last 10 games"]))
                (dom/tr #js {:style #js {:display "none"}} ;; workaround
                        (make-table-cols dom/td nil
-                                        ["" "" "" "" "" ""]))
+                                        ["" "" "" "" "" "" ""]))
                (om/build-all ranking rankings)
                ))))
 

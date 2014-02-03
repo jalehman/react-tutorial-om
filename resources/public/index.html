@@ -5,15 +5,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
- 
+
     <!-- If you are using CSS version, only link these 2 files, you may add app.css to use for your overrides if you like. -->
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/foundation.css">
     <!-- <script src="js/vendor/modernizr.js"></script -->
-                                            
+
     <style type="text/css" media="screen">
-    
-      
+
+      /* last-10 component */
+      ul.last-10-games {
+          width: 130px;
+          margin-left: 0;
+      }
+      .last-10-games li {
+          display: block;
+          float: left;
+          font-size: .6em;
+          height: 16px;
+          line-height: 1.4;
+          margin-right: 2px;
+          margin-bottom: 0;
+          padding: 0;
+          text-align: center;
+          width: 11px;
+      }
+
+      .last-10-games li.win span {
+          background-color: #2c7e00;
+      }
+      .last-10-games li.loss span {
+          background-color: #a8160c;
+      }
+
+      .last-10-games span {
+          height: 4px;
+          width: 11px;
+          text-indent: -9999px;
+          display: block;
+          direction: rtl;
+          position: relative;
+          top: 6px;
+      }
+
     </style>
   </head>
   <body>
