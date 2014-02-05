@@ -39,7 +39,7 @@
 (defn- clear-nodes!
   [& nodes]
   (doseq [n nodes]
-    #(set! (.-value n) "")))
+    (set! (.-value n) "")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Components
