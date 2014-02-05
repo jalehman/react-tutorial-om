@@ -22,11 +22,12 @@
   (assoc m :id (guid)))
 
 (defn- fetch-comments
-  "The comments need to be a vector, not a list. Not sure why."
-  [app opts]
-  (go (let [{{cs :comments} :body} (<! (http/get (:url opts)))]
+    [app {:keys [url]}]
+  (go (let [{{cs :comments} :body} (<! (http/get url))]
         (om/update!
-         app #(assoc % :comments (vec (map with-id cs)))))))
+         app
+         ;; The comments need to be a vector, not a list. Not sure why.
+         #(assoc % :comments (vec (map with-id cs)))))))
 
 (defn- value-from-node
   [owner field]
@@ -37,7 +38,8 @@
 
 (defn- clear-nodes!
   [& nodes]
-  (doall (map #(set! (.-value %) "") nodes)))
+  (doseq [n nodes]
+    (set! (.-value n) "")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Components
@@ -48,12 +50,10 @@
   (atom {:comments INITIAL}))
 
 (defn comment
-  [cursor owner opts]
+  [{:keys [author text] :as cursor} owner opts]
   (.log js/console (str "comment cursor = " cursor))
   (om/component
-    (let [text (:text cursor)
-          author (:author cursor)
-          raw-markup (md/mdToHtml (or text "blank comment!"))
+    (let [raw-markup (md/mdToHtml (or text "blank comment!"))
           color "red"]
       (dom/div #js {:className "comment"}
                (dom/h2 #js {:className "commentAuthor"} author)
@@ -68,19 +68,17 @@
             (into-array
              (om/build-all comment comments
                                  {:key :id
-                                  :fn (fn [c]
-                                        ;; (.log js/console c) 
-                                        c)
+                                  :fn identity
                                   :opts opts})))))
 
 (defn save-comment!
-  [comment cursor opts]
-  (do (om/update! cursor 
+  [comment cursor {:keys [url]}]
+  (do (om/update! cursor
                   (fn [comments] 
                     (conj comments (assoc comment :id (guid)))))
-      (go (let [res (<! (http/post (:url opts) {:json-params comment}))]
+      (go (let [res (<! (http/post url {:json-params comment}))]
             (prn (:message res))))))
-
+ 
 (defn handle-submit
   [e cursor owner opts]
   (let [[author author-node] (value-from-node owner "author")
@@ -103,7 +101,7 @@
        (dom/input #js {:type "submit" :value "Post"})))))
  
 (defn comment-box 
-  [cursor owner opts]
+  [cursor owner {:keys [poll-interval] :as opts}]
   (reify
     om/IInitState
     (init-state [this]
@@ -112,7 +110,7 @@
     (will-mount [this]
       (go (while true
             (fetch-comments cursor opts)
-            (<! (timeout (:poll-interval opts))))))
+            (<! (timeout poll-interval)))))
     om/IRender
     (render [this]
       (dom/div
