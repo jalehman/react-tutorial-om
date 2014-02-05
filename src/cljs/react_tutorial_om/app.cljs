@@ -92,7 +92,7 @@
 (defn validate-scores
   "Coerce scores to ints and return if onse is greater than the other
 
-else return [false false]
+  else return [false false]
 "
   [score score2]
   (let [score-int (js/parseInt score)
@@ -167,11 +167,14 @@ else return [false false]
 (defn last-10-games [results owner]
   (om/component
    (apply dom/ul #js {:className "last-10-games"}
-          (map #(dom/li #js {:className (if % "win" "loss")}
-                        (dom/span nil (if % "Win" "Loss")))
+          (map #(let [win? (> (:for %) (:against %))]
+                  (dom/li #js {:className (str (if win? "win" "loss") " hover")}
+                          (dom/span nil (if win? "Win" "Loss"))
+                          (dom/div #js {:className "atooltip"}
+                                   (str (if win? "Win" "Loss") " against " (:opposition %)))))
                (->> results
                     (take-last 10)
-                    (map #(> (:for %) (:against %))))))))
+                    )))))
 
 (defn ranking
   [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
@@ -197,9 +200,6 @@ else return [false false]
 
 (defn rankings-box [app owner opts]
   (reify
-    ;; om/IInitState
-    ;; (init-state [_]
-    ;;   [])
     om/IWillMount
     (will-mount [_]
       (prn "will mount")

@@ -150,5 +150,5 @@
 * generic sortable table component
 * unique wins, etc - some kind of distribution concept, who is most rounded
 * can only play against people near you (+/- 3). how to handle top people?
-* connection status
+* date in tooltip
  ")

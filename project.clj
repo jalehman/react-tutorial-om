@@ -14,7 +14,7 @@
                  [secretary "0.4.0"]
                  [markdown-clj "0.9.40"]
                  [cljs-http "0.1.2"]
-                 [om "0.3.1"]
+                 [om "0.3.2"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]]
 
   :plugins [[lein-cljsbuild "1.0.0"]
