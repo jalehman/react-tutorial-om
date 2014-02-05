@@ -32,11 +32,13 @@
   (GET "/comments" [] (json-response
                        {:message "Here's the comments!"
                         :comments @comments}))
+  
   (POST "/comments" req (save-comment! req))
 
   (route/resources "/")
+  
   (route/not-found "Page not found"))
 
 (def app
   (-> #'app-routes
-      (handler/api)))
+      handler/api))
