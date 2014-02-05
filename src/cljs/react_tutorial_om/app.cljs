@@ -23,13 +23,13 @@
   [m]
   (assoc m :id (guid)))
 
-(defn- fetch-comments
+(defn- fetch-matches
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [{{cs :comments} :body} (<! (http/get (:url opts)))]
-        (when cs
+  (go (let [{{matches :matches} :body} (<! (http/get (:url opts)))]
+        (when matches
           (om/transact!
-           app #(assoc % :comments (vec (map with-id cs))))))))
+           app #(assoc % :matches matches))))))
 
 (defn- fetch-rankings
   "The comments need to be a vector, not a list. Not sure why."
@@ -38,7 +38,7 @@
         (if ranks
           (om/transact!
            app #(-> %
-                    (assoc :rankings (vec (map with-id ranks)))
+                    (assoc :rankings ranks)
                     (assoc :conn? true)))
           (om/transact!
            app #(assoc % :conn? false))))))
@@ -59,7 +59,7 @@
 ;; Components
 
 (def app-state
-  (atom {:comments [] :rankings [] :conn? true}))
+  (atom {:matches [] :rankings [] :conn? true}))
 
 (defn display [show]
   (if show
@@ -67,12 +67,12 @@
     #js {:display "none"}))
 
 (defn comment
-  [{:keys [winner winner-score loser loser-score] :as c} owner opts]
+  [{:keys [winner winner-score loser loser-score date]} owner opts]
   (om/component
    (make-table-cols dom/td #js {:className "comment"}
                     [winner winner-score loser-score loser])))
 
-(defn comment-list [{:keys [comments]}]
+(defn comment-list [{:keys [matches]}]
   (om/component
    (dom/table #js {:className "commentList"}
               (dom/tbody
@@ -80,13 +80,13 @@
                (dom/thead nil (make-table-cols dom/th nil ["winner" "" "" "loser"]))
                (dom/tr nil ;; workaround
                        (make-table-cols dom/td nil ["" "" "" ""]))
-               (om/build-all comment (reverse comments))))))
+               (om/build-all comment (take 20 (reverse matches)))))))
 
-(defn save-comment!
-  [comment app opts]
-  (do (om/transact! app [:comments]
-                  (fn [comments] (conj comments (assoc comment :id (guid)))))
-      (go (let [res (<! (http/post (:url opts) {:json-params comment}))]
+(defn save-match!
+  [match app opts]
+  (do (om/transact! app [:matches]
+                  (fn [matches] (conj matches match)))
+      (go (let [res (<! (http/post (:url opts) {:json-params match}))]
             (prn (:message res))))))
 
 (defn validate-scores
@@ -110,7 +110,7 @@ else return [false false]
         loser-score (clojure.string/trim loser-score)
         [winner-score-int loser-score-int] (validate-scores winner-score loser-score)]
     (when (and winner winner-score-int loser loser-score-int)
-      (save-comment! {:winner winner :winner-score winner-score-int
+      (save-match! {:winner winner :winner-score winner-score-int
                       :loser loser :loser-score loser-score-int}
                      app opts)
       (doseq [key [:winner :winner-score :loser :loser-score]]
@@ -149,11 +149,11 @@ else return [false false]
   (reify
     om/IInitState
     (init-state [_]
-      (om/transact! app #(assoc % :comments [])))
+      (om/transact! app #(assoc % :matches [])))
     om/IWillMount
     (will-mount [_]
       (go (while true
-            (fetch-comments app opts)
+            (fetch-matches app opts)
             (<! (timeout (:poll-interval opts))))))
     om/IRender
     (render [_]
@@ -180,7 +180,7 @@ else return [false false]
                     [team ranking wins loses (.toFixed (/ wins loses) 2) suggest
                      (om/build last-10-games (:matches fields))])))
 
-(defn ranking-list [{:keys [rankings]}]
+(defn ranking-list [rankings]
   (om/component
    (dom/table #js {:className "rankingTable"}
               (dom/tbody
@@ -211,8 +211,8 @@ else return [false false]
       (dom/div
        #js {:className "rankingsBox"}
        (dom/h3 nil "Rankings (played more than 2 games)")
-       (om/build ranking-list app)
-       ))))
+       (om/build ranking-list (:rankings app))))
+    ))
 
 (defn status-box [conn? owner]
   (reify
@@ -236,7 +236,7 @@ else return [false false]
                                           :url "/rankings"}})
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/comments"}}))
+                                          :url "/matches"}}))
                (dom/div #js {:className "large-3 columns"} ""))
       )))
 

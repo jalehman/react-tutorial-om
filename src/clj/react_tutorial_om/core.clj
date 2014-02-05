@@ -27,7 +27,7 @@
   []
   (reset! results (load-json-file db-file)))
 
-(defn save-comment! ;; TODO: write to a db
+(defn save-match! ;; TODO: write to a db
   [{:keys [body]}]
   (let [comment (-> body io/reader slurp (json/parse-string true)
                     ;; TODO: coerce data earlier
@@ -116,10 +116,10 @@
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
   (GET "/init" [] (init) "inited")
-  (GET "/comments" [] (json-response
+  (GET "/matches" [] (json-response
                        {:message "Here's the results!"
-                        :comments @results}))
-  (POST "/comments" req (save-comment! req))
+                        :matches @results}))
+  (POST "/matches" req (save-match! req))
 
   (GET "/rankings" []
        (let [-results (map translate-keys @results)]
@@ -130,8 +130,6 @@
                            attach-suggested-opponents
                            attach-uniques
                            (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 2))))})))
-
-
 
   (route/resources "/")
   (route/not-found "Page not found"))
