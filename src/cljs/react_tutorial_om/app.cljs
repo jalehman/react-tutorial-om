@@ -212,6 +212,10 @@
        #js {:className "rankingsBox"}
        (dom/h3 nil "Rankings (played more than 2 games)")
        (om/build ranking-list (:rankings app))))
+    om/IShouldUpdate
+    (should-update [this next-props next-state]
+      (not= (:rankings next-props)
+            (:rankings app)))
     ))
 
 (defn status-box [conn? owner]
