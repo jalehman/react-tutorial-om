@@ -113,6 +113,10 @@
          count
          (assoc-in rank [:u-wins]))))
 
+(defn unique-players [results]
+  (into (into #{} (map :home results))
+       (map :away results)))
+
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
   (GET "/init" [] (init) "inited")
@@ -125,6 +129,7 @@
        (let [-results (map translate-keys @results)]
          (json-response
           {:message "Some rankings"
+           :players (unique-players -results)
            :rankings  (->> (calc-ranking-data -results)
                            (attach-player-matches -results)
                            attach-suggested-opponents

@@ -34,11 +34,13 @@
 (defn- fetch-rankings
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [{{ranks :rankings} :body status :status} (<! (http/get (:url opts)))]
-        (if ranks
+  (go (let [{{:keys [rankings players]}
+             :body status :status} (<! (http/get (:url opts)))]
+        (if rankings
           (om/transact!
            app #(-> %
-                    (assoc :rankings ranks)
+                    (assoc :rankings rankings)
+                    (assoc :players players)
                     (assoc :conn? true)))
           (om/transact!
            app #(assoc % :conn? false))))))
@@ -59,7 +61,7 @@
 ;; Components
 
 (def app-state
-  (atom {:matches [] :rankings [] :conn? true}))
+  (atom {:matches [] :rankings [] :players [] :conn? true}))
 
 (defn display [show]
   (if show
@@ -132,18 +134,21 @@
       (dom/form
        #js {:className "commentForm" :onSubmit #(handle-submit % app owner opts state)}
        (dom/input #js {:type "text" :placeholder "Winner" :ref "winner"
-                       :value (:winner state)
+                       :value (:winner state) :list "players"
                        :onChange #(handle-change % owner :winner)})
        (dom/input #js {:type "number"  :placeholder "Score" :ref "winner-score"
                        :value (:winner-score state)
                        :onChange #(handle-change % owner :winner-score)})
        (dom/input #js {:type "text" :placeholder "Loser" :ref "loser"
-                       :value (:loser state)
+                       :value (:loser state) :list "players"
                        :onChange #(handle-change % owner :loser)})
        (dom/input #js {:type "number" :placeholder "Score" :ref "loser-score"
                        :value (:loser-score state)
                        :onChange #(handle-change % owner :loser-score)})
-       (dom/input #js {:type "submit" :value "Post"})))))
+       (dom/input #js {:type "submit" :value "Post"})
+       (apply dom/datalist #js {:id "players"}
+              (map #(dom/option #js {:value %})
+                   (:players app)))))))
 
 (defn comment-box [app owner opts]
   (reify
