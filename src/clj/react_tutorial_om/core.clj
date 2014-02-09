@@ -1,12 +1,11 @@
 (ns react-tutorial-om.core
-  (:require [compojure.handler :as handler]
-            [compojure.route :as route]
-            [compojure.core :refer [GET POST defroutes]]
-            [ring.util.response :as resp]
-            [cheshire.core :as json]
+  (:require [cheshire.core :as json]
             [clojure.java.io :as io]
+            [compojure.core :refer [GET POST defroutes]]
+            [compojure.handler :as handler]
+            [compojure.route :as route]
             [ranking-algorithms.core :as rank]
-            ))
+            [ring.util.response :as resp]))
 
 (def results (atom [{:winner "chris", :winner-score 10, :loser "losers", :loser-score 0}
                     {:winner "arsenal", :winner-score 3, :loser "chelsea", :loser-score 0}]))
