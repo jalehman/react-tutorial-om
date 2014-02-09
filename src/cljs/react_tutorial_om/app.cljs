@@ -1,7 +1,7 @@
 (ns react-tutorial-om.app
   (:require-macros [cljs.core.async.macros :refer [go alt!]]
                    ;; #_[secretary.macros :refer [defroute]]
-                   [react-tutorial-om.utils :refer [logm make-table-cols]]
+                   [react-tutorial-om.utils :refer [logm]]
                    )
   (:require [goog.events :as events]
             [cljs.core.async :refer [put! <! >! chan timeout]]
@@ -71,17 +71,19 @@
 (defn comment
   [{:keys [winner winner-score loser loser-score date]} owner opts]
   (om/component
-   (make-table-cols dom/td #js {:className "comment"}
-                    [winner winner-score loser-score loser])))
+   (apply dom/tr #js {:className "comment"}
+          (map #(dom/td nil %) [winner winner-score loser-score loser]))))
 
 (defn comment-list [{:keys [matches]}]
   (om/component
    (dom/table #js {:className "commentList"}
               (dom/tbody
                nil
-               (dom/thead nil (make-table-cols dom/th nil ["winner" "" "" "loser"]))
+               (dom/thead nil (apply dom/tr nil
+                                     (map #(dom/th nil %) ["winner" "" "" "loser"])))
                (dom/tr nil ;; workaround
-                       (make-table-cols dom/td nil ["" "" "" ""]))
+                       (apply dom/tr nil
+                              (map #(dom/td nil %) ["" "" "" ""])))
                (om/build-all comment (take 20 (reverse matches)))))))
 
 (defn save-match!
@@ -186,9 +188,10 @@
 (defn ranking
   [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
   (om/component
-   (make-table-cols dom/td nil
-                    [team ranking wins loses (.toFixed (/ wins loses) 2) suggest
-                     (om/build last-10-games (:matches fields))])))
+   (apply dom/tr nil
+          (map #(dom/td nil %)
+               [team ranking wins loses (.toFixed (/ wins loses) 2) suggest
+                (om/build last-10-games (:matches fields))]))))
 
 (defn ranking-list [rankings]
   (om/component
@@ -196,11 +199,14 @@
               (dom/tbody
                nil
                (dom/thead nil
-                          (make-table-cols dom/th nil
-                                           ["team" "ranking" "wins" "losses" "w/l" "suggested opponent" "last 10 games"]))
+                          (apply dom/tr nil
+                                 (map #(dom/th nil %)
+                                      ["team" "ranking" "wins" "losses" "w/l"
+                                       "suggested opponent" "last 10 games"])))
                (dom/tr #js {:style #js {:display "none"}} ;; workaround
-                       (make-table-cols dom/td nil
-                                        ["" "" "" "" "" "" ""]))
+                       (apply dom/tr nil
+                              (map #(dom/td nil %)
+                                   ["" "" "" "" "" "" ""])))
                (om/build-all ranking rankings)
                ))))
 
