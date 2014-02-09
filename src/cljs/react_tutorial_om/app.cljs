@@ -176,7 +176,9 @@
                   (dom/li #js {:className (str (if win? "win" "loss") " hover")}
                           (dom/span nil (if win? "Win" "Loss"))
                           (dom/div #js {:className "atooltip"}
-                                   (str (if win? "Win" "Loss") " against " (:opposition %)))))
+                                   (str (if win? "Win " "Loss ")
+                                        (:for %) " - " (:against %)
+                                        " against " (:opposition %)))))
                (->> results
                     (take-last 10)
                     )))))
