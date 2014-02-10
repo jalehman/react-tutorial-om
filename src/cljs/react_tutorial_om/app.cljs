@@ -77,8 +77,8 @@
 (defn comment-list [{:keys [matches]}]
   (om/component
    (dom/table #js {:className "commentList"}
-              (dom/tbody
-               nil
+              (apply
+               dom/tbody nil
                (dom/thead nil (apply dom/tr nil
                                      (map #(dom/th nil %) ["winner" "" "" "loser"])))
                (dom/tr nil ;; workaround
@@ -196,8 +196,8 @@
 (defn ranking-list [rankings]
   (om/component
    (dom/table #js {:className "rankingTable"}
-              (dom/tbody
-               nil
+              (apply
+               dom/tbody nil
                (dom/thead nil
                           (apply dom/tr nil
                                  (map #(dom/th nil %)
