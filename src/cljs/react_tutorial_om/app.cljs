@@ -77,13 +77,10 @@
 (defn comment-list [{:keys [matches]}]
   (om/component
    (dom/table #js {:className "commentList"}
+              (dom/thead nil (apply dom/tr nil
+                                    (map #(dom/th nil %) ["winner" "" "" "loser"])))
               (apply
                dom/tbody nil
-               (dom/thead nil (apply dom/tr nil
-                                     (map #(dom/th nil %) ["winner" "" "" "loser"])))
-               (dom/tr nil ;; workaround
-                       (apply dom/tr nil
-                              (map #(dom/td nil %) ["" "" "" ""])))
                (om/build-all comment (take 20 (reverse matches)))))))
 
 (defn save-match!
@@ -196,19 +193,14 @@
 (defn ranking-list [rankings]
   (om/component
    (dom/table #js {:className "rankingTable"}
-              (apply
-               dom/tbody nil
-               (dom/thead nil
+              (dom/thead nil
                           (apply dom/tr nil
                                  (map #(dom/th nil %)
                                       ["team" "ranking" "wins" "losses" "w/l"
                                        "suggested opponent" "last 10 games"])))
-               (dom/tr #js {:style #js {:display "none"}} ;; workaround
-                       (apply dom/tr nil
-                              (map #(dom/td nil %)
-                                   ["" "" "" "" "" "" ""])))
-               (om/build-all ranking rankings)
-               ))))
+              (apply
+               dom/tbody nil
+               (om/build-all ranking rankings)))))
 
 
 (defn rankings-box [app owner opts]
