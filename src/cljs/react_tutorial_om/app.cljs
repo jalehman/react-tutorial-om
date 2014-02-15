@@ -5,7 +5,6 @@
                    )
   (:require [goog.events :as events]
             [cljs.core.async :refer [put! <! >! chan timeout]]
-            [markdown.core :as md]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             #_[secrtary.core :as secretary]
@@ -231,7 +230,7 @@
                     :style (display (not conn?))}
                "Connection problem!"))))
 
-(defn tutorial-app [app owner]
+(defn ladder-app [app owner]
   (reify
     om/IRender
     (render [_]
@@ -249,4 +248,6 @@
                (dom/div #js {:className "large-3 columns"} ""))
       )))
 
-(om/root app-state tutorial-app (.getElementById js/document "content"))
+(om/root ladder-app
+         app-state
+         {:target (.getElementById js/document "content")})
