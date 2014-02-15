@@ -5,7 +5,18 @@
             [compojure.handler :as handler]
             [compojure.route :as route]
             [ranking-algorithms.core :as rank]
-            [ring.util.response :as resp]))
+            [ring.util.response :as resp]
+            [clj-time.core :as time]
+            [clj-time.coerce :refer [from-date from-string]]
+            ))
+
+(defn recent? [date]
+  (if (nil? date)
+    false
+    (let [joda-date (from-string date)
+          offset (time/weeks 4)]
+      (time/after? joda-date
+                   (time/minus (time/now) offset)))))
 
 (def results (atom [{:winner "chris", :winner-score 10, :loser "losers", :loser-score 0}
                     {:winner "arsenal", :winner-score 3, :loser "chelsea", :loser-score 0}]))
@@ -38,11 +49,12 @@
     (json-response
      {:message "Saved comment!"})))
 
-(defn translate-keys [{:keys [winner winner-score loser loser-score]}]
+(defn translate-keys [{:keys [winner winner-score loser loser-score date]}]
   {:home winner
    :home_score winner-score
    :away loser
-   :away_score loser-score})
+   :away_score loser-score
+   :date date})
 
 (defn calc-ranking-data [matches]
   (map-indexed
@@ -133,7 +145,10 @@
                            (attach-player-matches -results)
                            attach-suggested-opponents
                            attach-uniques
-                           (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 2))))})))
+                           (filter (fn [{matches :matches}]
+                                     (recent? (:date (last matches)))))
+                           (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 4)))
+                           )})))
 
   (route/resources "/")
   (route/not-found "Page not found"))

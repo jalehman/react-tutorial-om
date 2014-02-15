@@ -8,6 +8,7 @@
                  [ring/ring-core "1.2.1"]
                  [compojure "1.1.6"]
                  [cheshire "5.2.0"]
+                 [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  ;; CLJS
                  [org.clojure/clojurescript "0.0-2156"]
@@ -23,7 +24,7 @@
          :init    react-tutorial-om.core/init}
 
   :main react-tutorial-om.core
-  :aot [react-tutorial-om.core]
+  ;; :aot [react-tutorial-om.core]
   :source-paths ["src/clj"]
 
   :cljsbuild {
