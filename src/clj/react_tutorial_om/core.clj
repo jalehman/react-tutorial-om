@@ -13,10 +13,12 @@
 (defn recent? [date]
   (if (nil? date)
     false
-    (let [joda-date (from-string date)
+    (let [joda-date (or (from-string date) (from-date date))
           offset (time/weeks 4)]
-      (time/after? joda-date
-                   (time/minus (time/now) offset)))))
+      (if (nil? joda-date)
+        false
+        (time/after? joda-date
+                     (time/minus (time/now) offset))))))
 
 (def results (atom [{:winner "chris", :winner-score 10, :loser "losers", :loser-score 0}
                     {:winner "arsenal", :winner-score 3, :loser "chelsea", :loser-score 0}]))
