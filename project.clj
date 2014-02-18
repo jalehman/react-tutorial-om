@@ -15,7 +15,7 @@
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
                  [cljs-http "0.1.7"]
-                 [om "0.4.1"]]
+                 [om "0.4.2"]]
 
   :plugins [[lein-cljsbuild "1.0.0"]
             [lein-ring "0.8.7"]]

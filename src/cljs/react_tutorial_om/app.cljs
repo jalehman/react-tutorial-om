@@ -235,9 +235,9 @@
     om/IRender
     (render [_]
       (dom/div #js {:className "row results-row"}
-               (dom/div #js {:className "large-3 columns"
+               (dom/div #js {:className "large-2 columns"
                              :dangerouslySetInnerHTML #js {:__html "&nbsp;"}})
-               (dom/div #js {:className "large-6 columns"}
+               (dom/div #js {:className "large-8 columns"}
                         (om/build status-box (:conn? app))
                         (om/build rankings-box app
                                   {:opts {:poll-interval 2000
@@ -245,7 +245,7 @@
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
                                           :url "/matches"}}))
-               (dom/div #js {:className "large-3 columns"} ""))
+               (dom/div #js {:className "large-2 columns"}))
       )))
 
 (om/root ladder-app
