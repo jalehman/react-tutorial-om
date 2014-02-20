@@ -176,7 +176,8 @@
                           (dom/div #js {:className "atooltip"}
                                    (str (if win? "Win " "Loss ")
                                         (:for %) " - " (:against %)
-                                        " against " (:opposition %)))))
+                                        " against " (:opposition %)
+                                        " @ " (:date %)))))
                (->> results
                     (take-last 10)
                     )))))
