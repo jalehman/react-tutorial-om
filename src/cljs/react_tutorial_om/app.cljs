@@ -60,7 +60,8 @@
 ;; Components
 
 (def app-state
-  (atom {:matches [] :rankings [] :players [] :conn? true}))
+  (atom {:matches [] :rankings [] :players [] :conn? true
+         :player-view {:display false :player nil} }))
 
 (defn display [show]
   (if show
@@ -169,7 +170,7 @@
 
 (defn last-10-games [results owner]
   (om/component
-   (apply dom/ul #js {:className "last-10-games"}
+   (apply dom/ul #js {:className "last-10-games" :style #js {:width "130px"}}
           (map #(let [win? (> (:for %) (:against %))]
                   (dom/li #js {:className (str (if win? "win" "loss") " hover")}
                           (dom/span nil (if win? "Win" "Loss"))
@@ -182,25 +183,56 @@
                     (take-last 10)
                     )))))
 
+(defn player-summary
+  [{{:keys [team ranking rd wins loses suggest matches] :as fields} :data
+    show :display} owner opts]
+  (om/component
+   (dom/div #js {:style (display show)}
+            (dom/h4 nil "Player Stats")
+            (dom/ul #js {:className "pricing-table"}
+                    (dom/li #js {:className "title"} team)
+                    (dom/li #js {:className "price"} ranking)
+                    (dom/li #js {:className "bullet-item"} (str  wins " - " loses))
+                    (apply dom/li #js {:className "bullet-item"}
+                           (map (fn [[name matches*]]
+                                  (let [wins (reduce (fn [tot {:keys [for against]}]
+                                                       (if (> for against)
+                                                         (inc tot)
+                                                         tot)) 0 matches*)
+                                        losses (- (count matches*) wins)]
+                                    (dom/li #js {:className ""}
+                                            (str name ": "
+                                                 wins " - " losses))))
+                                (reverse (sort-by (fn [[_ games]] (count games))
+                                                  (group-by :opposition matches)))))))))
+
 (defn ranking
   [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
-  (om/component
-   (apply dom/tr nil
-          (map #(dom/td nil %)
-               [team ranking wins loses (.toFixed (/ wins loses) 2) suggest
-                (om/build last-10-games (:matches fields))]))))
+  (reify
+    om/IRenderState
+    (render-state [this {:keys [select-player-ch]}]
+      (apply dom/tr nil
+             (map #(dom/td nil %)
+                  [(dom/span #js {:onClick (fn [e] (put! select-player-ch team))
+                                  :style #js {:cursor "pointer"}}
+                             team)
+                   ranking wins loses (.toFixed (/ wins loses) 2) suggest
+                   (om/build last-10-games (:matches fields))])))))
 
-(defn ranking-list [rankings]
+(defn ranking-list [rankings owner opts]
   (om/component
    (dom/table #js {:className "rankingTable"}
               (dom/thead nil
                           (apply dom/tr nil
                                  (map #(dom/th nil %)
-                                      ["team" "ranking" "wins" "losses" "w/l"
+                                      ["team" "ranking" "w" "l" "w/l"
                                        "suggested opponent" "last 10 games"])))
               (apply
                dom/tbody nil
-               (om/build-all ranking rankings)))))
+               (om/build-all
+                ranking
+                rankings
+                {:init-state {:select-player-ch (:select-player-ch opts)}})))))
 
 
 (defn rankings-box [app owner opts]
@@ -216,7 +248,7 @@
       (dom/div
        #js {:className "rankingsBox"}
        (dom/h3 nil "Rankings (played more than 2 games)")
-       (om/build ranking-list (:rankings app))))
+       (om/build ranking-list (:rankings app) {:opts opts})))
     om/IShouldUpdate
     (should-update [this next-props next-state]
       (not= (:rankings next-props)
@@ -233,20 +265,46 @@
 
 (defn ladder-app [app owner]
   (reify
-    om/IRender
-    (render [_]
+    om/IInitState
+    (init-state [_]
+      {:select-player-ch (chan)})
+    om/IWillMount
+    (will-mount [_]
+      (let [select-player-ch (om/get-state owner :select-player-ch)]
+        (go (loop []
+              (let [player (<! select-player-ch)]
+                (om/transact!
+                 app :player-view
+                 #(-> %
+                      ((fn [x]
+                         (if (= (:player x)
+                                player)  ;; toggle same player
+                           (assoc x :display (not (:display x)))
+                           (assoc x :display true))))
+                      (assoc :player player))))
+              (recur)))))
+    om/IRenderState
+    (render-state [this {:keys [select-player-ch]}]
       (dom/div #js {:className "row results-row"}
                (dom/div #js {:className "large-2 columns"
                              :dangerouslySetInnerHTML #js {:__html "&nbsp;"}})
-               (dom/div #js {:className "large-8 columns"}
+               (dom/div #js {:className "large-7 columns"}
                         (om/build status-box (:conn? app))
                         (om/build rankings-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/rankings"}})
+                                          :url "/rankings"
+                                          :select-player-ch select-player-ch}})
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
                                           :url "/matches"}}))
-               (dom/div #js {:className "large-2 columns"}))
+               (dom/div #js {:className "large-3 columns"}
+                        (om/build
+                         player-summary
+                         {:data  (first
+                                  (filter #(= (:team %)
+                                              (get-in app [:player-view :player]))
+                                          (:rankings app)))
+                          :display (get-in app [:player-view :display])})))
       )))
 
 (om/root ladder-app
