@@ -10,15 +10,16 @@
             [clj-time.coerce :refer [from-date from-string]]
             ))
 
-(defn recent? [date]
+(defn recent? [date & [now]]
   (if (nil? date)
     false
     (let [joda-date (or (from-string date) (from-date date))
-          offset (time/weeks 4)]
+          offset (time/weeks 4)
+          now (or now (time/now))]
       (if (nil? joda-date)
         false
         (time/after? joda-date
-                     (time/minus (time/now) offset))))))
+                     (time/minus now offset))))))
 
 (def results (atom [{:winner "chris", :winner-score 10, :loser "losers", :loser-score 0}
                     {:winner "arsenal", :winner-score 3, :loser "chelsea", :loser-score 0}]))
