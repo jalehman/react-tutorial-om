@@ -41,8 +41,8 @@
   (reset! results (load-json-file db-file)))
 
 (defn save-match! ;; TODO: write to a db
-  [{:keys [body]}]
-  (let [comment (-> body io/reader slurp (json/parse-string true)
+  [match]
+  (let [comment (-> match
                     ;; TODO: coerce data earlier
                     (update-in [:winner] clojure.string/lower-case)
                     (update-in [:loser] clojure.string/lower-case)
@@ -137,7 +137,11 @@
   (GET "/matches" [] (json-response
                        {:message "Here's the results!"
                         :matches @results}))
-  (POST "/matches" req (save-match! req))
+  (POST "/matches" req
+        (save-match! (-> (:body req)
+                         io/reader
+                         slurp
+                         (json/parse-string true))))
 
   (GET "/rankings" []
        (let [-results (map translate-keys @results)]
