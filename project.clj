@@ -27,6 +27,8 @@
   ;; :aot [react-tutorial-om.core]
   :source-paths ["src/clj"]
 
+  :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]]}}
+
   :cljsbuild {
               :builds [{:id "dev"
                         :source-paths ["src/cljs"]
