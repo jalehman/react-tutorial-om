@@ -1,0 +1,3 @@
+[submodule "checkouts/ranking-algorithms"]
+	path = checkouts/ranking-algorithms
+	url = git@github.com:minimal/ranking-algorithms.git
