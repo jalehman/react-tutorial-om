@@ -155,6 +155,7 @@
                            (filter (fn [{matches :matches}]
                                      (recent? (:date (last matches)))))
                            (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 4)))
+                           (map-indexed (fn [i m] (assoc m :rank (inc i))))
                            )})))
 
   (route/resources "/")

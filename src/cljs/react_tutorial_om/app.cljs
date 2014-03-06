@@ -207,13 +207,14 @@
                                                   (group-by :opposition matches)))))))))
 
 (defn ranking
-  [{:keys [team ranking rd wins loses suggest] :as fields} owner opts]
+  [{:keys [team rank ranking rd wins loses suggest] :as fields} owner opts]
   (reify
     om/IRenderState
     (render-state [this {:keys [select-player-ch]}]
       (apply dom/tr nil
              (map #(dom/td nil %)
-                  [(dom/span #js {:onClick (fn [e] (put! select-player-ch team))
+                  [rank
+                   (dom/span #js {:onClick (fn [e] (put! select-player-ch team))
                                   :style #js {:cursor "pointer"}}
                              team)
                    ranking wins loses (.toFixed (/ wins loses) 2) suggest
@@ -225,7 +226,7 @@
               (dom/thead nil
                           (apply dom/tr nil
                                  (map #(dom/th nil %)
-                                      ["team" "ranking" "w" "l" "w/l"
+                                      ["" "team" "ranking" "w" "l" "w/l"
                                        "suggested opponent" "last 10 games"])))
               (apply
                dom/tbody nil
