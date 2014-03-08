@@ -200,9 +200,17 @@
                                                          (inc tot)
                                                          tot)) 0 matches*)
                                         losses (- (count matches*) wins)]
-                                    (dom/li #js {:className ""}
-                                            (str name ": "
-                                                 wins " - " losses))))
+                                    (dom/li
+                                     nil
+                                     (dom/div #js {:className "row"}
+                                              (dom/div #js {:className "small-6 columns"}
+                                                       (str name ": " wins "-" losses))
+                                              (dom/div #js {:className "small-6 columns"}
+                                                       (dom/div #js {:className "progress success"}
+                                                                (dom/span
+                                                                 #js {:className "meter"
+                                                                      :style #js {:width (str (Math/round
+                                                                                               (* 100 (/ wins (+ wins losses)))) "%")}})))))))
                                 (reverse (sort-by (fn [[_ games]] (count games))
                                                   (group-by :opposition matches)))))))))
 
