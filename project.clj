@@ -11,11 +11,11 @@
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  ;; CLJS
-                 [org.clojure/clojurescript "0.0-2156"]
+                 [org.clojure/clojurescript "0.0-2173"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
                  [cljs-http "0.1.7"]
-                 [om "0.5.0"]]
+                 [om "0.5.1"]]
 
   :plugins [[lein-cljsbuild "1.0.0"]
             [lein-ring "0.8.7"]]
