@@ -204,13 +204,14 @@
                                      nil
                                      (dom/div #js {:className "row"}
                                               (dom/div #js {:className "small-6 columns"}
-                                                       (str name ": " wins "-" losses))
-                                              (dom/div #js {:className "small-6 columns"}
+                                                       (str name ": " wins "-" losses)
                                                        (dom/div #js {:className "progress success"}
                                                                 (dom/span
                                                                  #js {:className "meter"
                                                                       :style #js {:width (str (Math/round
-                                                                                               (* 100 (/ wins (+ wins losses)))) "%")}})))))))
+                                                                                               (* 100 (/ wins (+ wins losses)))) "%")}})))
+                                              (dom/div #js {:className "small-6 columns"}
+                                                       (om/build last-10-games (take-last 5 matches*)))))))
                                 (reverse (sort-by (fn [[_ games]] (count games))
                                                   (group-by :opposition matches)))))))))
 
