@@ -131,12 +131,23 @@
   (into (into #{} (map :home results))
         (map :away results)))
 
+(defn pdbug [x]
+  ;; (print "hello")
+  ;; (print (last (:matches (first x))))
+  ;; (print (first x))
+  ;; (print x)
+  ;; (print x)
+  #_(doseq [t x]
+      (println (:team t)))
+  (println (filter #(= (:team %) "jons") x))
+  x)
+
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
   (GET "/init" [] (init) "inited")
   (GET "/matches" [] (json-response
                        {:message "Here's the results!"
-                        :matches @results}))
+                        :matches (take-last 20 @results)}))
   (POST "/matches" req
         (save-match! (-> (:body req)
                          io/reader
