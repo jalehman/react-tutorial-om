@@ -151,9 +151,9 @@
 
 (defn comment-box [app owner opts]
   (reify
-    om/IInitState
-    (init-state [_]
-      (om/transact! app #(assoc % :matches [])))
+    ;; om/IInitState
+    ;; (init-state [_]  ;; this errors on 0.6 and doesn't seem needed
+    ;;   (om/transact! app #(assoc % :matches [])))
     om/IWillMount
     (will-mount [_]
       (go (while true
