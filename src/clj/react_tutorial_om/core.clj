@@ -1,5 +1,6 @@
 (ns react-tutorial-om.core
   (:require [cheshire.core :as json]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [compojure.core :refer [GET POST defroutes]]
             [compojure.handler :as handler]
@@ -30,6 +31,11 @@
   {:status (or status 200)
    :headers {"Content-Type" "application/json"}
    :body (json/generate-string data)})
+
+(defn edn-response [data & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/edn"}
+   :body (pr-str data)})
 
 (defn load-json-file [file]
   (-> (slurp file)
@@ -148,6 +154,15 @@
   (GET "/matches" [] (json-response
                        {:message "Here's the results!"
                         :matches (take-last 20 @results)}))
+  (GET "/matches.edn" []
+       (edn-response
+        {:message "Here's the results!"
+         :matches (take-last 20 @results)}))
+  (POST "/matches.edn" req
+        (save-match! (-> (:body req)
+                         io/reader
+                         slurp
+                         edn/read-string)))
   (POST "/matches" req
         (save-match! (-> (:body req)
                          io/reader

@@ -87,7 +87,7 @@
   [match app opts]
   (do (om/transact! app [:matches]
                   (fn [matches] (conj matches match)))
-      (go (let [res (<! (http/post (:url opts) {:json-params match}))]
+      (go (let [res (<! (http/post (:url opts) {:edn-params match}))]
             (prn (:message res))))))
 
 (defn validate-scores
@@ -306,7 +306,7 @@
                                           :select-player-ch select-player-ch}})
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/matches"}}))
+                                          :url "/matches.edn"}}))
                (dom/div #js {:className "large-3 columns"}
                         (om/build
                          player-summary
