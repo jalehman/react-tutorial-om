@@ -148,6 +148,22 @@
   (println (filter #(= (:team %) "jons") x))
   x)
 
+(defn handle-rankings
+  [results]
+  {:message "Some rankings"
+   :players (unique-players results)
+   :rankings  (->> (calc-ranking-data results)
+                   (attach-player-matches results)
+                   attach-suggested-opponents
+                   attach-uniques
+                   (filter (fn [{matches :matches}]
+                             (recent? (:date (last matches)))))
+                   (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 4)))
+                   ((fn [col] (if (> (count col) 5)
+                               (drop-last 2 col)
+                               col)))
+                   (map-indexed (fn [i m] (assoc m :rank (inc i)))))})
+
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/index.html"))
   (GET "/init" [] (init) "inited")
@@ -172,17 +188,11 @@
   (GET "/rankings" []
        (let [-results (map translate-keys @results)]
          (json-response
-          {:message "Some rankings"
-           :players (unique-players -results)
-           :rankings  (->> (calc-ranking-data -results)
-                           (attach-player-matches -results)
-                           attach-suggested-opponents
-                           attach-uniques
-                           (filter (fn [{matches :matches}]
-                                     (recent? (:date (last matches)))))
-                           (filter (fn [{:keys [loses wins]}] (> (+ loses wins) 4)))
-                           (map-indexed (fn [i m] (assoc m :rank (inc i))))
-                           )})))
+          (handle-rankings -results))))
+  (GET "/rankings.edn" []
+       (let [-results (map translate-keys @results)]
+         (edn-response
+          (handle-rankings -results))))
 
   (route/resources "/")
   (route/not-found "Page not found"))

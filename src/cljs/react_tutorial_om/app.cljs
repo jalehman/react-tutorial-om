@@ -302,7 +302,7 @@
                         (om/build status-box (:conn? app))
                         (om/build rankings-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/rankings"
+                                          :url "/rankings.edn"
                                           :select-player-ch select-player-ch}})
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
