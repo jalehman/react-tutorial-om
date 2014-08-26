@@ -2,23 +2,23 @@
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/tools.reader "0.8.3"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/tools.reader "0.8.7"]
                  ;; CLJ
                  [ring/ring-core "1.2.2"]
-                 [compojure "1.1.6"]
+                 [compojure "1.1.8"]
                  [cheshire "5.3.1"]
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  ;; CLJS
-                 [org.clojure/clojurescript "0.0-2173"]
+                 [org.clojure/clojurescript "0.0-2277"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
-                 [cljs-http "0.1.8"]
-                 [om "0.6.2"]
+                 [cljs-http "0.1.16"]
+                 [om "0.7.1"]
                  ]
 
-  :plugins [[lein-cljsbuild "1.0.0"]
+  :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [lein-ring "0.8.7"]]
 
   :ring {:handler react-tutorial-om.core/app
