@@ -11,24 +11,31 @@
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  ;; CLJS
-                 [org.clojure/clojurescript "0.0-2277"]
+                 [org.clojure/clojurescript "0.0-2311"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
                  [cljs-http "0.1.16"]
                  [om "0.7.1"]
+                 [ring "1.2.2"]
+                 [figwheel "0.1.3-SNAPSHOT"]
                  ]
 
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
-            [lein-ring "0.8.7"]]
+            [lein-ring "0.8.7"]
+            [com.cemerick/austin "0.1.5-SNAPSHOT"]
+            [lein-figwheel "0.1.2-SNAPSHOT"]]
 
   :ring {:handler react-tutorial-om.core/app
          :init    react-tutorial-om.core/init}
 
   :main react-tutorial-om.core
   ;; :aot [react-tutorial-om.core]
-  :source-paths ["src/clj"]
+  :source-paths ["src/clj" "src/cljs"]
 
-  :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]]}}
+  :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]]}
+
+             :figwheel {:http-server-root "public" ;; resources/public
+                        :port 3449 }}
 
   :cljsbuild {
               :builds [{:id "dev"

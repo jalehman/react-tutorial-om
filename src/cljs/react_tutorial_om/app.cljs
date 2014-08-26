@@ -9,6 +9,7 @@
             [om.dom :as dom :include-macros true]
             #_[secrtary.core :as secretary]
             [cljs-http.client :as http]
+            [figwheel.client :as fw :include-macros true]
             [react-tutorial-om.utils :refer [guid]])
   (:import [goog History]
            [goog.history EventType]))
@@ -316,3 +317,7 @@
 (om/root ladder-app
          app-state
          {:target (.getElementById js/document "content")})
+
+(fw/watch-and-reload
+  :websocket-url   "ws://localhost:3449/figwheel-ws"
+  :jsload-callback (fn [] (print "reloaded")))

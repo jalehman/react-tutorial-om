@@ -9,6 +9,8 @@
             [ring.util.response :as resp]
             [clj-time.core :as time]
             [clj-time.coerce :refer [from-date from-string]]
+            ring.adapter.jetty
+            [cemerick.austin.repls :refer (browser-connected-repl-js)]
             ))
 
 (defn recent? [date & [now]]
@@ -202,6 +204,18 @@
       (handler/api)))
 
 ;; (init)
+(defn run
+  []
+  (defonce ^:private server
+    (ring.adapter.jetty/run-jetty #'app {:port 3000 :join? false}))
+  server)
+
+
+(defn browser-repl []
+  (let [repl-env (reset! cemerick.austin.repls/browser-repl-env
+                         (cemerick.austin/repl-env))]
+    (cemerick.austin.repls/cljs-repl repl-env)))
+
 (comment
   "
  TODO:
