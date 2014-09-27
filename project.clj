@@ -32,13 +32,15 @@
   :ring {:handler react-tutorial-om.core/app
          :init    react-tutorial-om.core/init}
 
+  :repl-options {:init-ns user}
   :main react-tutorial-om.core
   ;; :aot [react-tutorial-om.core]
   :source-paths ["src/clj" "src/cljs"]
 
   :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]
                                    [reloaded.repl "0.1.0"]
-                                   [org.clojure/tools.namespace "0.2.6"]]}
+                                   [org.clojure/tools.namespace "0.2.6"]]
+                   :source-paths ["dev"]}
 
              :figwheel {:http-server-root "public" ;; resources/public
                         :port 3449 }}

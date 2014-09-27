@@ -10,8 +10,6 @@
             [clj-time.core :as time]
             [clj-time.coerce :refer [from-date from-string]]
             ring.adapter.jetty
-            [cemerick.piggieback :as piggieback]
-            [weasel.repl.websocket :as weasel]
             [com.stuartsierra.component :as component]
             ))
 
@@ -221,12 +219,6 @@
 (defn new-webserver [config]
   (map->WebServer config))
 
-(defn make-system []
-  (component/system-map
-   :webserver (new-webserver {:ring {:port 3000 :join? false}})))
-
-(defn browser-repl []
-  (piggieback/cljs-repl :repl-env (weasel/repl-env :ip "0.0.0.0" :port 9001)))
 
 (comment
   "
