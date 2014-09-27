@@ -10,11 +10,10 @@
             #_[secrtary.core :as secretary]
             [cljs-http.client :as http]
             [figwheel.client :as fw :include-macros true]
+            [weasel.repl :as weasel]
             [react-tutorial-om.utils :refer [guid]])
   (:import [goog History]
            [goog.history EventType]))
-
-(enable-console-print!)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Util
@@ -318,6 +317,12 @@
          app-state
          {:target (.getElementById js/document "content")})
 
-(fw/watch-and-reload
-  :websocket-url   "ws://localhost:3449/figwheel-ws"
-  :jsload-callback (fn [] (print "reloaded")))
+;; (def is-dev (.contains (.. js/document -body -classList) "is-dev"))
+(def is-dev true)
+
+(when is-dev
+  (enable-console-print!)
+  (fw/watch-and-reload
+   :websocket-url   "ws://localhost:3449/figwheel-ws"
+   :jsload-callback (fn [] (print "reloaded")))
+  (weasel/connect "ws://localhost:9001" :verbose true))

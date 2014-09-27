@@ -10,20 +10,23 @@
                  [cheshire "5.3.1"]
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
+                 [environ "1.0.0"]
+                 [ring "1.2.2"]
                  ;; CLJS
                  [org.clojure/clojurescript "0.0-2311"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
                  [cljs-http "0.1.16"]
                  [om "0.7.1"]
-                 [ring "1.2.2"]
-                 [figwheel "0.1.3-SNAPSHOT"]
+                 [figwheel "0.1.4-SNAPSHOT"]
+                 [com.cemerick/piggieback "0.1.3"]
+                 [weasel "0.4.0-SNAPSHOT"]
                  ]
 
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]
             [lein-ring "0.8.7"]
-            [com.cemerick/austin "0.1.5-SNAPSHOT"]
-            [lein-figwheel "0.1.2-SNAPSHOT"]]
+            [lein-environ "1.0.0"]
+            [lein-figwheel "0.1.4-SNAPSHOT"]]
 
   :ring {:handler react-tutorial-om.core/app
          :init    react-tutorial-om.core/init}
