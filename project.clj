@@ -12,6 +12,7 @@
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  [environ "1.0.0"]
                  [ring "1.2.2"]
+                 [com.stuartsierra/component "0.2.2"]
                  ;; CLJS
                  [org.clojure/clojurescript "0.0-2311"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
@@ -35,7 +36,9 @@
   ;; :aot [react-tutorial-om.core]
   :source-paths ["src/clj" "src/cljs"]
 
-  :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]]}
+  :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]
+                                   [reloaded.repl "0.1.0"]
+                                   [org.clojure/tools.namespace "0.2.6"]]}
 
              :figwheel {:http-server-root "public" ;; resources/public
                         :port 3449 }}

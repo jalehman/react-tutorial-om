@@ -12,6 +12,7 @@
             ring.adapter.jetty
             [cemerick.piggieback :as piggieback]
             [weasel.repl.websocket :as weasel]
+            [com.stuartsierra.component :as component]
             ))
 
 (defn recent? [date & [now]]
@@ -200,17 +201,29 @@
   (route/resources "/")
   (route/not-found "Page not found"))
 
-(def app
+(defn make-handler []
   (-> #'app-routes
       (handler/api)))
 
-;; (init)
-(defn run
-  []
-  (defonce ^:private server
-    (ring.adapter.jetty/run-jetty #'app {:port 3000 :join? false}))
-  server)
+(defrecord WebServer [ring]
+  component/Lifecycle
+  (start [component]
+    (init)
+    (let [app (make-handler)]
+      (assoc component
+        :server
+        (ring.adapter.jetty/run-jetty app ring))))
+  (stop [component]
+    (when-let [server (:server component)]
+      (.stop server))
+    (assoc component :server nil)))
 
+(defn new-webserver [config]
+  (map->WebServer config))
+
+(defn make-system []
+  (component/system-map
+   :webserver (new-webserver {:ring {:port 3000 :join? false}})))
 
 (defn browser-repl []
   (piggieback/cljs-repl :repl-env (weasel/repl-env :ip "0.0.0.0" :port 9001)))
