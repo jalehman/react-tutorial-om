@@ -4,7 +4,7 @@
                    [react-tutorial-om.utils :refer [logm]]
                    )
   (:require [goog.events :as events]
-            [cljs.core.async :refer [put! <! >! chan timeout]]
+            [cljs.core.async :as async :refer [put! <! >! chan timeout]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             #_[secrtary.core :as secretary]
@@ -151,14 +151,17 @@
 
 (defn comment-box [app owner opts]
   (reify
-    ;; om/IInitState
-    ;; (init-state [_]  ;; this errors on 0.6 and doesn't seem needed
-    ;;   (om/transact! app #(assoc % :matches [])))
+    om/IInitState
+    (init-state [_]
+      {:mounted true})
     om/IWillMount
     (will-mount [_]
-      (go (while true
+      (go (while (om/get-state owner :mounted)
             (fetch-matches app opts)
             (<! (timeout (:poll-interval opts))))))
+    om/IWillUnmount
+    (will-unmount [_]
+      (om/set-state! owner :mounted false))
     om/IRender
     (render [_]
       (dom/div
@@ -247,19 +250,24 @@
 
 (defn rankings-box [app owner opts]
   (reify
+    om/IInitState
+    (init-state [_]
+      {:mounted true})
     om/IWillMount
     (will-mount [_]
       (prn "will mount")
-      (go (while true
+      (go (while (om/get-state owner :mounted)
             (fetch-rankings app opts)
             (<! (timeout (:poll-interval opts))))))
+    om/IWillUnmount
+    (will-unmount [_]
+      (om/set-state! owner :mounted false))
     om/IRender
     (render [_]
       (dom/div
        #js {:className "rankingsBox"}
        (dom/h3 nil "Rankings (played more than 2 games)")
-       (om/build ranking-list (:rankings app) {:opts opts})))
-    ))
+       (om/build ranking-list (:rankings app) {:opts opts})))))
 
 (defn status-box [conn? owner]
   (reify
@@ -278,7 +286,7 @@
     (will-mount [_]
       (let [select-player-ch (om/get-state owner :select-player-ch)]
         (go (loop []
-              (let [player (<! select-player-ch)]
+              (when-let [player (<! select-player-ch)]
                 (om/transact!
                  app :player-view
                  #(-> %
@@ -287,8 +295,11 @@
                                 player)  ;; toggle same player
                            (assoc x :display (not (:display x)))
                            (assoc x :display true))))
-                      (assoc :player player))))
-              (recur)))))
+                      (assoc :player player)))
+                (recur))))))
+    om/IWillUnmount
+    (will-unmount [_]
+      (async/close! (om/get-state owner :select-player-ch)))
     om/IRenderState
     (render-state [this {:keys [select-player-ch]}]
       (dom/div #js {:className "row results-row"}
