@@ -3,15 +3,15 @@
   :url "http://example.com/FIXME"
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/tools.reader "0.8.7"]
+                 [org.clojure/tools.reader "0.8.9"]
                  ;; CLJ
-                 [ring/ring-core "1.2.2"]
-                 [compojure "1.1.8"]
+                 [ring/ring-core "1.3.1"]
+                 [compojure "1.1.9"]
                  [cheshire "5.3.1"]
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
                  [environ "1.0.0"]
-                 [ring "1.2.2"]
+                 [ring "1.3.1"]
                  [com.stuartsierra/component "0.2.2"]
                  ;; CLJS
                  [org.clojure/clojurescript "0.0-2311"]
@@ -39,7 +39,7 @@
 
   :profiles {:dev { :dependencies [[javax.servlet/servlet-api "2.5"]
                                    [reloaded.repl "0.1.0"]
-                                   [org.clojure/tools.namespace "0.2.6"]]
+                                   [org.clojure/tools.namespace "0.2.7"]]
                    :source-paths ["dev"]}
 
              :figwheel {:http-server-root "public" ;; resources/public
