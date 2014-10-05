@@ -190,10 +190,7 @@
          {:message "Here's the results!"
           :matches (take-last 20 @results)}))
    (POST "/matches" req
-         (save-match! (-> (:body req)
-                          io/reader
-                          slurp
-                          edn/read-string)))
+         (save-match! (:body-params req)))
    (GET "/rankings" []
         (let [-results (map translate-keys @results)]
           (edn-response
@@ -202,7 +199,7 @@
 
 (defn make-handler [is-dev?]
   (-> (make-routes is-dev?)
-      wrap-restful-response
+      wrap-restful-format
       handler/api
       (prone/wrap-exceptions {:app-namespaces ["react-tutorial-om"]})))
 

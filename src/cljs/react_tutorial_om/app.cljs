@@ -89,7 +89,7 @@
   [match app opts]
   (do (om/transact! app [:matches]
                   (fn [matches] (conj matches match)))
-      (go (let [res (<! (http/post (:url opts) {:edn-params match}))]
+      (go (let [res (<! (http/post (:url opts) {:transit-params match}))]
             (prn (:message res))))))
 
 (defn validate-scores
