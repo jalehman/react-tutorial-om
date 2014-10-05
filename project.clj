@@ -15,6 +15,7 @@
                  [ring "1.3.1"]
                  [com.stuartsierra/component "0.2.2"]
                  [ring-middleware-format "0.4.1-SNAPSHOT"]
+                 [prone "0.6.0"]
                  ;; CLJS
                  [org.clojure/clojurescript "0.0-2322" #_"0.0-2356"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]

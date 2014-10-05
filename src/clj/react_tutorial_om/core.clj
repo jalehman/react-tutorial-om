@@ -12,6 +12,8 @@
             [net.cgrand.enlive-html :refer [deftemplate set-attr prepend append html]]
             ring.adapter.jetty
             [com.stuartsierra.component :as component]
+            [prone.middleware :as prone]
+            [prone.debug :refer [debug]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.format-response :refer [wrap-restful-response]]))
 
@@ -200,14 +202,15 @@
 (defn make-handler [is-dev?]
   (-> (make-routes is-dev?)
       wrap-restful-format
-      handler/api
-      (prone/wrap-exceptions {:app-namespaces ["react-tutorial-om"]})))
+      handler/api))
 
 (defrecord WebServer [ring is-dev?]
   component/Lifecycle
   (start [component]
     (init)
-    (let [app (make-handler is-dev?)]
+    (let [app (cond-> (make-handler is-dev?)
+                      is-dev? (prone/wrap-exceptions
+                               {:app-namespaces ["react-tutorial-om"]}))]
       (assoc component
         :server
         (ring.adapter.jetty/run-jetty app ring))))
