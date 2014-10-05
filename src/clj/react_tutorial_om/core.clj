@@ -9,9 +9,22 @@
             [ring.util.response :as resp]
             [clj-time.core :as time]
             [clj-time.coerce :refer [from-date from-string]]
+            [net.cgrand.enlive-html :refer [deftemplate set-attr prepend append html]]
             ring.adapter.jetty
             [com.stuartsierra.component :as component]
-            ))
+            [ring.middleware.format :refer [wrap-restful-format]]
+            [ring.middleware.format-response :refer [wrap-restful-response]]))
+
+(def inject-devmode-html
+  (comp
+     (set-attr :class "is-dev")
+     (prepend (html [:script {:type "text/javascript" :src "/js/out/goog/base.js"}]))
+     (prepend (html [:script {:type "text/javascript" :src "/react/react.js"}]))
+     (append  (html [:script {:type "text/javascript"} "goog.require('react_tutorial_om.app')"]))))
+
+(deftemplate page (io/resource "public/index.html")
+  [is-dev?]
+  [:body] (if is-dev? inject-devmode-html identity))
 
 (defn recent? [date & [now]]
   (if (nil? date)
@@ -166,48 +179,38 @@
                                col)))
                    (map-indexed (fn [i m] (assoc m :rank (inc i)))))})
 
-(defroutes app-routes
-  (GET "/" [] (resp/redirect "/index.html"))
-  (GET "/init" [] (init) "inited")
-  (GET "/matches" [] (json-response
-                       {:message "Here's the results!"
-                        :matches (take-last 20 @results)}))
-  (GET "/matches.edn" []
-       (edn-response
-        {:message "Here's the results!"
-         :matches (take-last 20 @results)}))
-  (POST "/matches.edn" req
-        (save-match! (-> (:body req)
-                         io/reader
-                         slurp
-                         edn/read-string)))
-  (POST "/matches" req
-        (save-match! (-> (:body req)
-                         io/reader
-                         slurp
-                         (json/parse-string true))))
+(defn make-routes [is-dev?]
+  (compojure.core/routes
+   (route/resources "/")
+   (route/resources "/react" {:root "react"})
+   (GET "/" [] (apply str (page true)))
+   (GET "/init" [] (init) "inited")
+   (GET "/matches" []
+        (edn-response
+         {:message "Here's the results!"
+          :matches (take-last 20 @results)}))
+   (POST "/matches" req
+         (save-match! (-> (:body req)
+                          io/reader
+                          slurp
+                          edn/read-string)))
+   (GET "/rankings" []
+        (let [-results (map translate-keys @results)]
+          (edn-response
+           (handle-rankings -results))))
+   (route/not-found "Page not found")))
 
-  (GET "/rankings" []
-       (let [-results (map translate-keys @results)]
-         (json-response
-          (handle-rankings -results))))
-  (GET "/rankings.edn" []
-       (let [-results (map translate-keys @results)]
-         (edn-response
-          (handle-rankings -results))))
+(defn make-handler [is-dev?]
+  (-> (make-routes is-dev?)
+      wrap-restful-response
+      handler/api
+      (prone/wrap-exceptions {:app-namespaces ["react-tutorial-om"]})))
 
-  (route/resources "/")
-  (route/not-found "Page not found"))
-
-(defn make-handler []
-  (-> #'app-routes
-      (handler/api)))
-
-(defrecord WebServer [ring]
+(defrecord WebServer [ring is-dev?]
   component/Lifecycle
   (start [component]
     (init)
-    (let [app (make-handler)]
+    (let [app (make-handler is-dev?)]
       (assoc component
         :server
         (ring.adapter.jetty/run-jetty app ring))))

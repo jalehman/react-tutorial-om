@@ -25,7 +25,7 @@
 (defn- fetch-matches
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
-  (go (let [{{matches :matches} :body} (<! (http/get (:url opts)))]
+  (go (let [{{matches :matches} :body} (<! (http/get (:url opts) {:accept "application/transit+json"}))]
         (when matches
           (om/transact!
            app #(assoc % :matches matches))))))
@@ -34,7 +34,7 @@
   "The comments need to be a vector, not a list. Not sure why."
   [app opts]
   (go (let [{{:keys [rankings players]}
-             :body status :status} (<! (http/get (:url opts)))]
+             :body status :status} (<! (http/get (:url opts) {:accept "application/transit+json"}))]
         (if rankings
           (om/transact!
            app #(-> %
@@ -315,11 +315,11 @@
                         (om/build status-box (:conn? app))
                         (om/build rankings-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/rankings.edn"
+                                          :url "/rankings"
                                           :select-player-ch select-player-ch}})
                         (om/build comment-box app
                                   {:opts {:poll-interval 2000
-                                          :url "/matches.edn"}}))
+                                          :url "/matches"}}))
                (dom/div #js {:className "large-3 columns"}
                         (om/build
                          player-summary
@@ -334,8 +334,7 @@
          app-state
          {:target (.getElementById js/document "content")})
 
-;; (def is-dev (.contains (.. js/document -body -classList) "is-dev"))
-(def is-dev true)
+(def is-dev (.contains (.. js/document -body -classList) "is-dev"))
 
 (when is-dev
   (enable-console-print!)

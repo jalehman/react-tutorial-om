@@ -4,4 +4,5 @@
 
 (defn make-system []
   (component/system-map
-   :webserver (core/new-webserver {:ring {:port 3000 :join? false}})))
+   :webserver (core/new-webserver {:ring {:port 3000 :join? false}
+                                   :is-dev? true})))

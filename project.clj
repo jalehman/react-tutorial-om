@@ -10,15 +10,17 @@
                  [cheshire "5.3.1"]
                  [clj-time "0.6.0"]
                  [ranking-algorithms "0.1.0-SNAPSHOT"]
+                 [enlive "1.1.5"]
                  [environ "1.0.0"]
                  [ring "1.3.1"]
                  [com.stuartsierra/component "0.2.2"]
+                 [ring-middleware-format "0.4.1-SNAPSHOT"]
                  ;; CLJS
-                 [org.clojure/clojurescript "0.0-2311"]
+                 [org.clojure/clojurescript "0.0-2322" #_"0.0-2356"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  ;; [secretary "0.7.1"]
                  [cljs-http "0.1.16"]
-                 [om "0.7.1"]
+                 [om "0.7.3"]
                  [figwheel "0.1.4-SNAPSHOT"]
                  [com.cemerick/piggieback "0.1.3"]
                  [weasel "0.4.0-SNAPSHOT"]
@@ -53,7 +55,9 @@
                                    :output-dir "resources/public/js/out"
                                    :optimizations :none
                                    :source-map true
-                                   :externs ["om/externs/react.js"]}}
+                                   :preamble ["react/react.min.js"]
+                                   :externs ["react/externs/react.js"]
+}}
                        {:id "release"
                         :source-paths ["src/cljs"]
                         :compiler {
