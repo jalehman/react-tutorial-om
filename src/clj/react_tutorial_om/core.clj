@@ -51,8 +51,7 @@
 
 (defn edn-response [data & [status]]
   {:status (or status 200)
-   :headers {"Content-Type" "application/edn"}
-   :body (pr-str data)})
+   :body data})
 
 (defn load-json-file [file]
   (-> (slurp file)
@@ -155,11 +154,7 @@
         (map :away results)))
 
 (defn pdbug [x]
-  ;; (print "hello")
-  ;; (print (last (:matches (first x))))
-  ;; (print (first x))
-  ;; (print x)
-  ;; (print x)
+  (println x)
   #_(doseq [t x]
       (println (:team t)))
   (println (filter #(= (:team %) "jons") x))
@@ -194,9 +189,8 @@
    (POST "/matches" req
          (save-match! (:body-params req)))
    (GET "/rankings" []
-        (let [-results (map translate-keys @results)]
-          (edn-response
-           (handle-rankings -results))))
+        (edn-response
+         (handle-rankings (map translate-keys @results))))
    (route/not-found "Page not found")))
 
 (defn make-handler [is-dev?]
