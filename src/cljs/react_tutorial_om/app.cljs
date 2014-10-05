@@ -59,9 +59,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Components
 
-(def app-state
+(defonce app-state
   (atom {:matches [] :rankings [] :players [] :conn? true
          :player-view {:display false :player nil} }))
+
+(defonce re-render-ch (chan))
 
 (defn display [show]
   (if show
@@ -296,6 +298,10 @@
                            (assoc x :display (not (:display x)))
                            (assoc x :display true))))
                       (assoc :player player)))
+                (recur))))
+        (go (loop []
+              (when (<! re-render-ch)
+                (om/refresh! owner)
                 (recur))))))
     om/IWillUnmount
     (will-unmount [_]
@@ -335,5 +341,7 @@
   (enable-console-print!)
   (fw/watch-and-reload
    :websocket-url   "ws://localhost:3449/figwheel-ws"
-   :jsload-callback (fn [] (print "reloaded")))
+   :jsload-callback (fn []
+                      (print "reloaded")
+                      (put! re-render-ch true)))
   (weasel/connect "ws://localhost:9001" :verbose true))
