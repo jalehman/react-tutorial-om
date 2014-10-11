@@ -1,3 +1,6 @@
 [submodule "checkouts/ranking-algorithms"]
 	path = checkouts/ranking-algorithms
 	url = https://github.com/minimal/ranking-algorithms.git
+[submodule "checkouts/ring-middleware-format"]
+	path = checkouts/ring-middleware-format
+	url = git@github.com:minimal/ring-middleware-format.git
